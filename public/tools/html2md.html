@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML → Markdown - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬇️</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">HTML → Markdown</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入 HTML</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="粘贴 HTML..."><h1>标题</h1><p>这是一段<strong>加粗</strong>和<em>斜体</em>的文字。</p><ul><li>列表项1</li><li>列表项2</li></ul></textarea></div>
+          </div>
+          <div class="middle-actions"><button class="btn btn-primary" onclick="convert()" title="转换">▶️</button></div>
+          <div class="panel">
+            <div class="panel-header"><span>输出 Markdown</span><div class="panel-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('html2md','HTML → Markdown','text');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('output').value='';}
+    function convert(){
+      let v=document.getElementById('input').value.trim();
+      if(!v){showToast('请输入 HTML');return;}
+      v=v.replace(/<h1[^>]*>(.*?)<\/h1>/gi,'# $1\n');
+      v=v.replace(/<h2[^>]*>(.*?)<\/h2>/gi,'## $1\n');
+      v=v.replace(/<h3[^>]*>(.*?)<\/h3>/gi,'### $1\n');
+      v=v.replace(/<p[^>]*>(.*?)<\/p>/gi,'$1\n\n');
+      v=v.replace(/<strong[^>]*>(.*?)<\/strong>/gi,'**$1**');
+      v=v.replace(/<b[^>]*>(.*?)<\/b>/gi,'**$1**');
+      v=v.replace(/<em[^>]*>(.*?)<\/em>/gi,'*$1*');
+      v=v.replace(/<i[^>]*>(.*?)<\/i>/gi,'*$1*');
+      v=v.replace(/<code[^>]*>(.*?)<\/code>/gi,'`$1`');
+      v=v.replace(/<a[^>]+href="([^"]*)"[^>]*>(.*?)<\/a>/gi,'[$2]($1)');
+      v=v.replace(/<img[^>]+src="([^"]*)"[^>]*>/gi,'![]($1)');
+      v=v.replace(/<ul[^>]*>(.*?)<\/ul>/gis,function(m,inner){return inner.replace(/<li[^>]*>(.*?)<\/li>/gi,'- $1\n');});
+      v=v.replace(/<ol[^>]*>(.*?)<\/ol>/gis,function(m,inner){let i=1;return inner.replace(/<li[^>]*>(.*?)<\/li>/gi,function(){return i+++'. $1\n';});});
+      v=v.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi,'> $1\n');
+      v=v.replace(/<br\s*\/?>/gi,'\n');
+      v=v.replace(/<hr\s*\/?>/gi,'---\n');
+      v=v.replace(/<[^>]+>/g,'');
+      v=v.replace(/\n{3,}/g,'\n\n');
+      document.getElementById('output').value=v.trim();
+      logToolUsage('html2md','convert');
+    }
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+    convert();
+  </script>
+</body>
+</html>

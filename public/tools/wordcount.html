@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字数统计 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">字数统计</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">输入文本</span><div class="card-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+          <textarea class="code-editor" id="input" placeholder="在此输入文本..." oninput="count()"></textarea>
+        </div>
+        <div class="divider"></div>
+        <div id="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">总字符</div><div class="stat-value" id="totalChars">0</div></div>
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">中文字符</div><div class="stat-value" id="cnChars">0</div></div>
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">英文单词</div><div class="stat-value" id="enWords">0</div></div>
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">行数</div><div class="stat-value" id="lines">0</div></div>
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">段落</div><div class="stat-value" id="paragraphs">0</div></div>
+          <div class="card" style="padding:16px"><div style="font-size:11px;color:var(--text-muted)">字节数</div><div class="stat-value" id="bytes">0</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('wordcount','字数统计','text');
+    function clearAll(){document.getElementById('input').value='';count();}
+    function count(){
+      const v=document.getElementById('input').value;
+      document.getElementById('totalChars').textContent=v.length;
+      document.getElementById('cnChars').textContent=(v.match(/[\u4e00-\u9fff]/g)||[]).length;
+      document.getElementById('enWords').textContent=v.trim()?v.trim().split(/\s+/).filter(w=>/[a-zA-Z]/.test(w)).length:0;
+      document.getElementById('lines').textContent=v?\n.split('\n').length:0;
+      document.getElementById('paragraphs').textContent=v?v.split(/\n\s*\n/).filter(p=>p.trim()).length:0;
+      document.getElementById('bytes').textContent=new Blob([v]).size;
+      if(v)logToolUsage('wordcount','count');
+    }
+  </script>
+</body>
+</html>

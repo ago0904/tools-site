@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片工具 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">图片工具</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">图片转 Base64</span></div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile()">
+          <div style="border:2px dashed var(--border);border-radius:var(--radius-md);padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size:32px;margin-bottom:8px">📁</div>
+            <div style="font-size:14px;color:var(--text-muted)">点击或拖拽上传图片</div>
+          </div>
+          <div id="fileResult" style="margin-top:12px;display:none">
+            <div style="display:flex;gap:16px;align-items:flex-start;margin-top:12px">
+              <img id="preview" style="max-width:200px;max-height:200px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="flex:1">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Base64</div>
+                <textarea class="code-editor" id="b64output" style="min-height:120px" readonly></textarea>
+                <div style="display:flex;gap:8px;margin-top:8px">
+                  <button class="btn btn-sm" onclick="copyB64()">📋 复制</button>
+                  <button class="btn btn-sm" onclick="downloadB64()">💾 下载 .txt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Base64 转图片</span></div>
+          <textarea class="code-editor" id="b64input" style="min-height:120px" placeholder="粘贴 Base64..."></textarea>
+          <button class="btn btn-primary" style="margin-top:8px" onclick="b64toImg()">▶️ 转换</button>
+          <div id="imgResult" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('image','图片工具','convert');
+    function handleFile(){
+      const f=document.getElementById('fileInput').files[0];if(!f)return;
+      const r=new FileReader();
+      r.onload=e=>{
+        const b64=e.target.result;
+        document.getElementById('preview').src=b64;
+        document.getElementById('b64output').value=b64;
+        document.getElementById('fileResult').style.display='block';
+        logToolUsage('image','toBase64');
+      };
+      r.readAsDataURL(f);
+    }
+    function copyB64(){const v=document.getElementById('b64output').value;if(v)copyToClipboard(v);}
+    function downloadB64(){const v=document.getElementById('b64output').value;if(!v)return;const b=new Blob([v],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='base64.txt';a.click();}
+    function b64toImg(){
+      const v=document.getElementById('b64input').value.trim();
+      if(!v){showToast('请输入 Base64');return;}
+      const img=document.createElement('img');
+      img.src=v.startsWith('data:')?v:'data:image/png;base64,'+v;
+      img.style.cssText='max-width:300px;border-radius:var(--radius-sm);border:1px solid var(--border);';
+      const c=document.getElementById('imgResult');c.innerHTML='';c.appendChild(img);
+      logToolUsage('image','fromBase64');
+    }
+  </script>
+</body>
+</html>

@@ -6,10 +6,10 @@ const TOOL_CATEGORIES = [
     icon: '📋',
     color: '#3fb950',
     tools: [
-      { id: 'json', name: 'JSON 格式化', icon: '✨', desc: '美化、验证、压缩、树形查看' },
-      { id: 'json2code', name: 'JSON 转代码', icon: '💻', desc: '生成 TypeScript/Java/Go/Python 接口' },
-      { id: 'json2xml', name: 'JSON/XML 互转', icon: '⇄', desc: 'JSON 与 XML 格式互转' },
-      { id: 'jsonschema', name: 'JSON Schema', icon: '📐', desc: '生成 JSON Schema 校验规则' },
+      { id: 'json', name: 'JSON 格式化', icon: '✨', desc: '美化、验证、压缩' },
+      { id: 'json2code', name: 'JSON 转代码', icon: '💻', desc: '生成 TS/Java/Go/Python 接口' },
+      { id: 'json2xml', name: 'JSON/XML 互转', icon: '⇄', desc: '格式互转' },
+      { id: 'csv', name: 'CSV ↔ JSON', icon: '📊', desc: 'CSV 与 JSON 互转' },
     ]
   },
   {
@@ -21,6 +21,7 @@ const TOOL_CATEGORIES = [
       { id: 'base64', name: 'Base64', icon: '🔢', desc: '文本与 Base64 互转' },
       { id: 'url', name: 'URL 编码', icon: '🔗', desc: 'URL 编解码、参数解析' },
       { id: 'hash', name: '哈希计算', icon: '#️⃣', desc: 'MD5、SHA-1、SHA-256 等' },
+      { id: 'htmlentity', name: 'HTML 实体', icon: '&', desc: 'HTML 实体编解码' },
       { id: 'jwt', name: 'JWT 解析', icon: '🎫', desc: 'JWT Token 解码与验证' },
       { id: 'aes', name: 'AES 加解密', icon: '🛡️', desc: 'AES 对称加密' },
     ]
@@ -56,6 +57,8 @@ const TOOL_CATEGORIES = [
     tools: [
       { id: 'diff', name: '文本对比', icon: '🔀', desc: '两段文本差异高亮对比' },
       { id: 'regex', name: '正则测试', icon: '🔎', desc: '实时匹配、替换、提取' },
+      { id: 'wordcount', name: '字数统计', icon: '📝', desc: '字符、单词、行数统计' },
+      { id: 'html2md', name: 'HTML → Markdown', icon: '⬇️', desc: 'HTML 转 Markdown' },
       { id: 'text', name: '文本工具箱', icon: '🧰', desc: '去重、排序、统计、替换' },
       { id: 'markdown', name: 'Markdown', icon: '📃', desc: 'Markdown 实时预览' },
     ]
@@ -67,9 +70,11 @@ const TOOL_CATEGORIES = [
     color: '#79c0ff',
     tools: [
       { id: 'timestamp', name: '时间戳', icon: '⏰', desc: '时间戳与日期互转' },
+      { id: 'datediff', name: '日期计算', icon: '📅', desc: '日期间隔与推算' },
       { id: 'color', name: '颜色转换', icon: '🎨', desc: 'HEX / RGB / HSL 互转' },
       { id: 'unit', name: '单位换算', icon: '📏', desc: '长度、重量、温度、存储' },
       { id: 'base', name: '进制转换', icon: '🔢', desc: '二、八、十、十六进制互转' },
+      { id: 'image', name: '图片工具', icon: '🖼️', desc: '图片转 Base64 / Base64 转图片' },
     ]
   },
   {
@@ -80,6 +85,7 @@ const TOOL_CATEGORIES = [
     tools: [
       { id: 'password', name: '密码生成', icon: '🔑', desc: '随机强密码生成器' },
       { id: 'uuid', name: 'UUID', icon: '🆔', desc: '批量生成 UUID/GUID' },
+      { id: 'random', name: '随机生成器', icon: '🎲', desc: '随机数、随机字符串' },
       { id: 'qrcode', name: '二维码', icon: '▪️', desc: '文本/URL 转二维码' },
       { id: 'barcode', name: '条形码', icon: '┃', desc: '生成 Code128 条形码' },
       { id: 'lorem', name: '假文生成', icon: '📄', desc: 'Lorem Ipsum 占位文本' },

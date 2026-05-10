@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML 实体 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">HTML 实体</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="输入文本...">< "hello" ></textarea></div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="encode()" title="编码">📤</button>
+            <button class="btn btn-sm" onclick="decode()" title="解码">📥</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span>输出</span><div class="panel-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('htmlentity','HTML 实体','encode');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('output').value='';}
+    function encode(){const v=document.getElementById('input').value;document.getElementById('output').value=v.replace(/[&<>"']/g,c=>({'\u0026':'\u0026amp;','\u003c':'\u0026lt;','\u003e':'\u0026gt;','"':'\u0026quot;',"'":'\u0026apos;'}[c]));logToolUsage('htmlentity','encode');}
+    function decode(){const v=document.getElementById('input').value;document.getElementById('output').value=v.replace(/\u0026(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/g,(_,e)=>{if(e==='amp')return'\u0026';if(e==='lt')return'\u003c';if(e==='gt')return'\u003e';if(e==='quot')return'"';if(e==='apos')return"'";if(e.startsWith('#x'))return String.fromCharCode(parseInt(e.slice(2),16));return String.fromCharCode(parseInt(e.slice(1),10));});logToolUsage('htmlentity','decode');}
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+  </script>
+</body>
+</html>

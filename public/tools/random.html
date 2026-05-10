@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机生成器 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">随机生成器</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">随机数</span></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <div><div style="font-size:12px;color:var(--text-muted)">最小值</div><input class="input" type="number" id="minVal" value="1" style="width:100px"></div>
+            <div><div style="font-size:12px;color:var(--text-muted)">最大值</div><input class="input" type="number" id="maxVal" value="100" style="width:100px"></div>
+            <div><div style="font-size:12px;color:var(--text-muted)">数量</div><input class="input" type="number" id="count" value="5" style="width:80px"></div>
+            <button class="btn btn-primary" onclick="genNumbers()">🎲 生成</button>
+          </div>
+          <div id="numResult" style="font-family:var(--font-mono);font-size:18px"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">随机字符串</span></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <div><div style="font-size:12px;color:var(--text-muted)">长度</div><input class="input" type="number" id="strLen" value="16" style="width:80px"></div>
+            <div><div style="font-size:12px;color:var(--text-muted)">数量</div><input class="input" type="number" id="strCount" value="5" style="width:80px"></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <label><input type="checkbox" id="useUpper" checked> 大写</label>
+              <label><input type="checkbox" id="useLower" checked> 小写</label>
+              <label><input type="checkbox" id="useNum" checked> 数字</label>
+            </div>
+            <button class="btn btn-primary" onclick="genStrings()">🎲 生成</button>
+          </div>
+          <div id="strResult" style="font-family:var(--font-mono);font-size:14px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('random','随机生成器','gen');
+    function genNumbers(){
+      const min=parseInt(document.getElementById('minVal').value)||1;
+      const max=parseInt(document.getElementById('maxVal').value)||100;
+      const n=parseInt(document.getElementById('count').value)||1;
+      const nums=[];for(let i=0;i<n;i++)nums.push(Math.floor(Math.random()*(max-min+1))+min);
+      document.getElementById('numResult').innerHTML=nums.map((x,i)=>`<span class="badge" style="margin-right:8px;margin-bottom:4px">${x}</span>`).join('');
+      logToolUsage('random','numbers');
+    }
+    function genStrings(){
+      const len=parseInt(document.getElementById('strLen').value)||8;
+      const n=parseInt(document.getElementById('strCount').value)||1;
+      const upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lower='abcdefghijklmnopqrstuvwxyz';
+      const num='0123456789';
+      let chars='';
+      if(document.getElementById('useUpper').checked)chars+=upper;
+      if(document.getElementById('useLower').checked)chars+=lower;
+      if(document.getElementById('useNum').checked)chars+=num;
+      if(!chars){showToast('至少选择一种字符');return;}
+      const strs=[];for(let i=0;i<n;i++){let s='';for(let j=0;j<len;j++)s+=chars[Math.floor(Math.random()*chars.length)];strs.push(s);}
+      document.getElementById('strResult').innerHTML=strs.map((s,i)=>`<div style="margin-bottom:4px"><span class="badge">${i+1}</span> <code>${s}</code></div>`).join('');
+      logToolUsage('random','strings');
+    }
+  </script>
+</body>
+</html>

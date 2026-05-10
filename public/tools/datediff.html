@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日期计算 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">日期计算</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">日期间隔</span></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <input class="input" type="date" id="date1" style="width:160px">
+            <span style="color:var(--text-muted)">到</span>
+            <input class="input" type="date" id="date2" style="width:160px">
+            <button class="btn btn-primary" onclick="calcDiff()">▶️ 计算</button>
+          </div>
+          <div id="diffResult"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">日期推算</span></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <input class="input" type="date" id="baseDate" style="width:160px">
+            <span style="color:var(--text-muted)">+</span>
+            <input class="input" type="number" id="offset" value="30" style="width:100px" placeholder="天数">
+            <select class="input" id="unit" style="width:100px"><option value="day">天</option><option value="month">月</option><option value="year">年</option></select>
+            <button class="btn btn-primary" onclick="calcOffset()">▶️ 计算</button>
+          </div>
+          <div id="offsetResult"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('datediff','日期计算','convert');
+    document.getElementById('date1').valueAsDate=new Date();
+    document.getElementById('date2').valueAsDate=new Date(Date.now()+7*86400000);
+    document.getElementById('baseDate').valueAsDate=new Date();
+    function calcDiff(){
+      const d1=new Date(document.getElementById('date1').value);
+      const d2=new Date(document.getElementById('date2').value);
+      if(isNaN(d1)||isNaN(d2)){showToast('请选择日期');return;}
+      const diff=Math.abs(d2-d1);
+      const days=Math.floor(diff/86400000);
+      const weeks=Math.floor(days/7);
+      const months=Math.floor(days/30.44);
+      const years=Math.floor(days/365.25);
+      document.getElementById('diffResult').innerHTML=`
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
+          <div class="card" style="padding:12px 16px"><div style="font-size:11px;color:var(--text-muted)">相差天数</div><div style="font-size:24px;font-weight:600">${days}</div></div>
+          <div class="card" style="padding:12px 16px"><div style="font-size:11px;color:var(--text-muted)">周数</div><div style="font-size:24px;font-weight:600">${weeks}</div></div>
+          <div class="card" style="padding:12px 16px"><div style="font-size:11px;color:var(--text-muted)">约月数</div><div style="font-size:24px;font-weight:600">${months}</div></div>
+          <div class="card" style="padding:12px 16px"><div style="font-size:11px;color:var(--text-muted)">约年数</div><div style="font-size:24px;font-weight:600">${years}</div></div>
+        </div>`;
+      logToolUsage('datediff','diff');
+    }
+    function calcOffset(){
+      const base=new Date(document.getElementById('baseDate').value);
+      const offset=parseInt(document.getElementById('offset').value)||0;
+      const unit=document.getElementById('unit').value;
+      if(isNaN(base)){showToast('请选择日期');return;}
+      const result=new Date(base);
+      if(unit==='day')result.setDate(result.getDate()+offset);
+      else if(unit==='month')result.setMonth(result.getMonth()+offset);
+      else if(unit==='year')result.setFullYear(result.getFullYear()+offset);
+      document.getElementById('offsetResult').innerHTML=`
+        <div class="card" style="padding:16px">
+          <div style="font-size:14px;color:var(--text-secondary)">${base.toLocaleDateString('zh-CN')} + ${offset} ${unit==='day'?'天':unit==='month'?'月':'年'} =</div>
+          <div style="font-size:28px;font-weight:700;margin-top:8px">${result.toLocaleDateString('zh-CN')}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">星期${'日一二三四五六'[result.getDay()]}</div>
+        </div>`;
+      logToolUsage('datediff','offset');
+    }
+  </script>
+</body>
+</html>
