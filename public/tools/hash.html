@@ -3,55 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>哈希生成器</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>哈希计算 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>#️⃣</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>#️⃣ 哈希生成器</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="tool-box">
-      <h3>输入文本</h3>
-      <textarea id="input" placeholder="输入文本...">hello</textarea>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="hash('MD5')">MD5</button>
-        <button class="btn btn-secondary" onclick="hash('SHA-256')">SHA-256</button>
-        <button class="btn btn-secondary" onclick="hash('SHA-512')">SHA-512</button>
-        <button class="btn btn-secondary" onclick="hash('SHA-1')">SHA-1</button>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">哈希计算</div>
+        <div class="topbar-actions">
+          <button class="btn btn-sm" onclick="copyAll()">📋 复制全部</button>
+          <a href="/" class="btn btn-sm">🏠 首页</a>
+        </div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">输入文本</span>
+            <button class="btn btn-sm" onclick="clearAll()">🗑️ 清空</button>
+          </div>
+          <textarea class="code-editor" id="input" placeholder="在此输入文本..." style="min-height:100px"></textarea>
+          <div class="btn-group" style="margin-top:12px">
+            <button class="btn btn-primary" onclick="computeAll()">▶️ 计算全部</button>
+            <button class="btn" onclick="compute('md5')">MD5</button>
+            <button class="btn" onclick="compute('sha1')">SHA-1</button>
+            <button class="btn" onclick="compute('sha256')">SHA-256</button>
+            <button class="btn" onclick="compute('sha512')">SHA-512</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div id="results" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px"></div>
       </div>
-    </div>
-    <div class="tool-box">
-      <h3>结果</h3>
-      <div id="output" class="output-box"></div>
-      <button class="btn btn-secondary" onclick="copyOut()" style="margin-top:8px">复制</button>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    async function hash(algo) {
-      const text = document.getElementById('input').value;
-      const encoder = new TextEncoder();
-      const data = encoder.encode(text);
-      const hashBuffer = await crypto.subtle.digest(algo, data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      document.getElementById('output').textContent = `${algo}: ${hashHex}`;
-      logTool('hash', algo.toLowerCase().replace('-',''));
+    renderToolPage('hash', '哈希计算', 'encode');
+
+    async function digest(algo, text) {
+      const buf = await crypto.subtle.digest(algo, new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
-    function copyOut() {
-      const text = document.getElementById('output').textContent;
-      if (!text) return;
-      navigator.clipboard.writeText(text.split(': ')[1]).then(() => {
-        document.getElementById('output').textContent += '\n✅ 已复制';
-      });
+
+    async function compute(algo) {
+      const v = document.getElementById('input').value;
+      if (!v) { showToast('请输入文本'); return; }
+      const r = await digest(algo.toUpperCase(), v);
+      showResult(algo.toUpperCase(), r);
+      logToolUsage('hash', algo);
     }
-    hash('MD5');
+
+    async function computeAll() {
+      const v = document.getElementById('input').value;
+      if (!v) { showToast('请输入文本'); return; }
+      const algos = ['MD5','SHA-1','SHA-256','SHA-512'];
+      const container = document.getElementById('results');
+      container.innerHTML = '<div class="empty-state">计算中...</div>';
+      let html = '';
+      for (const a of algos) {
+        const r = await digest(a, v);
+        html += renderCard(a, r);
+      }
+      container.innerHTML = html;
+      logToolUsage('hash', 'all');
+    }
+
+    function renderCard(algo, hash) {
+      return `<div class="card">
+        <div class="card-header">
+          <span class="card-title">${algo}</span>
+          <button class="btn btn-sm" onclick="copyToClipboard('${hash}')">📋</button>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:13px;word-break:break-all;color:var(--text-primary)">${hash}</div>
+      </div>`;
+    }
+
+    function showResult(algo, hash) {
+      const container = document.getElementById('results');
+      const existing = document.querySelector(`[data-algo="${algo}"]`);
+      if (existing) existing.remove();
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.setAttribute('data-algo', algo);
+      div.innerHTML = renderCard(algo, hash);
+      container.prepend(div);
+    }
+
+    function clearAll() { document.getElementById('input').value = ''; document.getElementById('results').innerHTML = ''; }
+    function copyAll() {
+      const cards = document.querySelectorAll('#results .card');
+      if (!cards.length) { showToast('无结果'); return; }
+      let text = '';
+      cards.forEach(c => { const t = c.querySelector('.card-title').textContent; const h = c.querySelector('div:last-child').textContent; text += `${t}: ${h}\n`; });
+      copyToClipboard(text.trim());
+    }
   </script>
 </body>
 </html>

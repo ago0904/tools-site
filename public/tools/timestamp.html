@@ -3,74 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>时间戳转换</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>时间戳转换 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>⏱️ 时间戳转换</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="tool-box">
-      <h3>当前时间</h3>
-      <p id="currentTime" style="font-family:monospace;font-size:1.1rem"></p>
-    </div>
-    <div class="row">
-      <div class="tool-box">
-        <h3>时间戳 → 日期</h3>
-        <input type="text" id="tsInput" placeholder="1746880000000">
-        <select id="tsUnit" style="margin-top:8px">
-          <option value="ms">毫秒 (ms)</option>
-          <option value="s">秒 (s)</option>
-        </select>
-        <button class="btn" onclick="tsToDate()" style="margin-top:8px">转换</button>
-        <div id="tsOutput" class="output-box"></div>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">时间戳转换</div>
+        <div class="topbar-actions">
+          <a href="/" class="btn btn-sm">🏠 首页</a>
+        </div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">当前时间</span>
+            <span class="badge" id="liveClock">--</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Unix 时间戳（秒）</div>
+              <input class="input" id="tsSec" readonly>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Unix 时间戳（毫秒）</div>
+              <input class="input" id="tsMs" readonly>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">ISO 8601</div>
+              <input class="input" id="tsISO" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">转换工具</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:start">
+            <div class="panel">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">时间戳 → 日期</div>
+              <input class="input" id="fromTs" placeholder="输入时间戳（秒或毫秒）">
+              <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="tsToDate()">转换日期</button>
+              <input class="input" id="toDateResult" placeholder="结果" readonly style="margin-top:8px">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center">
+              <div style="font-size:24px;color:var(--text-muted)">⇄</div>
+            </div>
+            <div class="panel">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">日期 → 时间戳</div>
+              <input class="input" type="datetime-local" id="fromDate">
+              <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="dateToTs()">转换时间戳</button>
+              <input class="input" id="toTsResult" placeholder="结果" readonly style="margin-top:8px">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="tool-box">
-        <h3>日期 → 时间戳</h3>
-        <input type="text" id="dateInput" placeholder="2026-05-10 12:00:00">
-        <button class="btn" onclick="dateToTs()" style="margin-top:8px">转换</button>
-        <div id="dateOutput" class="output-box"></div>
-      </div>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    function updateCurrent() {
+    renderToolPage('timestamp', '时间戳转换', 'convert');
+
+    function updateClock() {
       const now = new Date();
-      document.getElementById('currentTime').innerHTML = 
-        `本地: ${now.toLocaleString()}<br>时间戳(ms): ${now.getTime()}<br>时间戳(s): ${Math.floor(now.getTime()/1000)}`;
+      document.getElementById('liveClock').textContent = now.toLocaleString('zh-CN');
+      document.getElementById('tsSec').value = Math.floor(now.getTime() / 1000);
+      document.getElementById('tsMs').value = now.getTime();
+      document.getElementById('tsISO').value = now.toISOString();
     }
-    updateCurrent();
-    setInterval(updateCurrent, 1000);
+    setInterval(updateClock, 1000);
+    updateClock();
 
     function tsToDate() {
-      const val = document.getElementById('tsInput').value.trim();
-      const unit = document.getElementById('tsUnit').value;
-      if (!val) return;
-      let ts = parseInt(val);
-      if (unit === 's') ts *= 1000;
+      const v = document.getElementById('fromTs').value.trim();
+      if (!v) { showToast('请输入时间戳'); return; }
+      let ts = parseInt(v);
+      if (v.length <= 10) ts *= 1000;
       const d = new Date(ts);
-      document.getElementById('tsOutput').innerHTML = 
-        `日期: ${d.toLocaleString()}<br>ISO: ${d.toISOString()}`;
-      logTool('timestamp', 'tsToDate');
+      if (isNaN(d)) { showToast('无效的时间戳'); return; }
+      document.getElementById('toDateResult').value = d.toLocaleString('zh-CN') + ' | ' + d.toISOString();
+      logToolUsage('timestamp', 'tsToDate');
     }
+
     function dateToTs() {
-      const val = document.getElementById('dateInput').value.trim();
-      if (!val) return;
-      const d = new Date(val);
-      if (isNaN(d.getTime())) {
-        document.getElementById('dateOutput').textContent = '❌ 日期格式无效';
-        return;
-      }
-      document.getElementById('dateOutput').innerHTML = 
-        `毫秒: ${d.getTime()}<br>秒: ${Math.floor(d.getTime()/1000)}`;
-      logTool('timestamp', 'dateToTs');
+      const v = document.getElementById('fromDate').value;
+      if (!v) { showToast('请选择日期'); return; }
+      const d = new Date(v);
+      if (isNaN(d)) { showToast('无效的日期'); return; }
+      document.getElementById('toTsResult').value = '秒: ' + Math.floor(d.getTime()/1000) + ' | 毫秒: ' + d.getTime();
+      logToolUsage('timestamp', 'dateToTs');
     }
   </script>
 </body>

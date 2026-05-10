@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>进制转换 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">进制转换</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:start">
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">输入</div>
+              <input class="input" id="input" value="255" oninput="convert()">
+              <select class="input" id="fromBase" onchange="convert()" style="margin-top:8px">
+                <option value="10">十进制</option><option value="2">二进制</option><option value="8">八进制</option><option value="16">十六进制</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;padding-top:24px"><div style="font-size:24px;color:var(--text-muted)">➜</div></div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">结果</div>
+              <input class="input" id="output" readonly>
+              <select class="input" id="toBase" onchange="convert()" style="margin-top:8px">
+                <option value="2">二进制</option><option value="8">八进制</option><option value="10">十进制</option><option value="16">十六进制</option>
+              </select>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">全部结果</div>
+          <div id="allResults" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('base','进制转换','convert');
+    function convert(){
+      const v=document.getElementById('input').value.trim();
+      if(!v){document.getElementById('output').value='';document.getElementById('allResults').innerHTML='';return;}
+      const from=parseInt(document.getElementById('fromBase').value);
+      const to=parseInt(document.getElementById('toBase').value);
+      let dec;try{dec=parseInt(v,from);if(isNaN(dec)){throw new Error();}}catch(e){document.getElementById('output').value='❌ 无效输入';return;}
+      document.getElementById('output').value=dec.toString(to).toUpperCase();
+      logToolUsage('base','convert');
+      const bases=[{n:2,l:'二进制'},{n:8,l:'八进制'},{n:10,l:'十进制'},{n:16,l:'十六进制'}];
+      document.getElementById('allResults').innerHTML=bases.map(b=>`<div class="card" style="padding:10px 14px"><div style="font-size:11px;color:var(--text-muted)">${b.l}</div><div style="font-family:var(--font-mono);font-size:14px;margin-top:4px">${dec.toString(b.n).toUpperCase()}</div></div>`).join('');
+    }
+    convert();
+  </script>
+</body>
+</html>

@@ -3,115 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>单位换算</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>单位换算 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📏</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>⚖️ 单位换算</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="tool-box">
-      <h3>长度</h3>
-      <input type="number" id="lenVal" placeholder="1" value="1">
-      <select id="lenFrom">
-        <option value="m">米 (m)</option>
-        <option value="km">千米 (km)</option>
-        <option value="cm">厘米 (cm)</option>
-        <option value="mm">毫米 (mm)</option>
-        <option value="ft">英尺 (ft)</option>
-        <option value="in">英寸 (in)</option>
-      </select>
-      →
-      <select id="lenTo">
-        <option value="cm">厘米 (cm)</option>
-        <option value="m">米 (m)</option>
-        <option value="km">千米 (km)</option>
-        <option value="mm">毫米 (mm)</option>
-        <option value="ft">英尺 (ft)</option>
-        <option value="in">英寸 (in)</option>
-      </select>
-      <button class="btn" onclick="convertLen()">换算</button>
-      <div id="lenOut" class="output-box"></div>
-    </div>
-
-    <div class="tool-box">
-      <h3>重量</h3>
-      <input type="number" id="weightVal" placeholder="1" value="1">
-      <select id="weightFrom">
-        <option value="kg">千克 (kg)</option>
-        <option value="g">克 (g)</option>
-        <option value="lb">磅 (lb)</option>
-        <option value="oz">盎司 (oz)</option>
-      </select>
-      →
-      <select id="weightTo">
-        <option value="g">克 (g)</option>
-        <option value="kg">千克 (kg)</option>
-        <option value="lb">磅 (lb)</option>
-        <option value="oz">盎司 (oz)</option>
-      </select>
-      <button class="btn" onclick="convertWeight()">换算</button>
-      <div id="weightOut" class="output-box"></div>
-    </div>
-
-    <div class="tool-box">
-      <h3>温度</h3>
-      <input type="number" id="tempVal" placeholder="25" value="25">
-      <select id="tempFrom">
-        <option value="c">摄氏度 (°C)</option>
-        <option value="f">华氏度 (°F)</option>
-        <option value="k">开尔文 (K)</option>
-      </select>
-      →
-      <select id="tempTo">
-        <option value="f">华氏度 (°F)</option>
-        <option value="c">摄氏度 (°C)</option>
-        <option value="k">开尔文 (K)</option>
-      </select>
-      <button class="btn" onclick="convertTemp()">换算</button>
-      <div id="tempOut" class="output-box"></div>
-    </div>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">单位换算</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            <select class="input" id="category" onchange="updateUnits()" style="width:160px">
+              <option value="length">长度</option><option value="weight">重量</option><option value="temp">温度</option><option value="data">数据存储</option><option value="area">面积</option>
+            </select>
+            <input class="input" type="number" id="val" value="1" oninput="convert()">
+            <select class="input" id="from" onchange="convert()"></select>
+            <div style="display:flex;align-items:center;color:var(--text-muted)">➜</div>
+            <select class="input" id="to" onchange="convert()"></select>
+          </div>
+          <div id="result" style="font-size:24px;font-weight:600;text-align:center;padding:20px;background:var(--bg-primary);border-radius:8px;font-family:var(--font-mono)">1 m = 100 cm</div>
+        </div>
+        <div class="divider"></div>
+        <div id="allUnits" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px"></div>
+      </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    const lenRates = { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254 };
-    const weightRates = { kg:1, g:0.001, lb:0.453592, oz:0.0283495 };
-    function convertLen() {
-      const v = parseFloat(document.getElementById('lenVal').value) || 0;
-      const from = lenRates[document.getElementById('lenFrom').value];
-      const to = lenRates[document.getElementById('lenTo').value];
-      document.getElementById('lenOut').textContent = (v * from / to).toFixed(6);
-      logTool('unit', 'length');
+    renderToolPage('unit','单位换算','convert');
+    const UNITS={
+      length:{m:1,km:1000,cm:0.01,mm:0.001,inch:0.0254,ft:0.3048,yard:0.9144,mi:1609.34},
+      weight:{kg:1,g:0.001,mg:0.000001,ton:1000,lb:0.453592,oz:0.0283495},
+      temp:{'c':'c','f':'f','k':'k'},
+      data:{b:1,kb:1024,mb:1048576,gb:1073741824,tb:1099511627776,pb:1125899906842624},
+      area:{m2:1,km2:1000000,ha:10000,ft2:0.092903,acre:4046.86}
+    };
+    const NAMES={length:{m:'米',km:'千米',cm:'厘米',mm:'毫米',inch:'英寸',ft:'英尺',yard:'码',mi:'英里'},weight:{kg:'千克',g:'克',mg:'毫克',ton:'吨',lb:'磅',oz:'盎司'},temp:{c:'摄氏度',f:'华氏度',k:'开尔文'},data:{b:'字节',kb:'KB',mb:'MB',gb:'GB',tb:'TB',pb:'PB'},area:{m2:'平方米',km2:'平方千米',ha:'公顷',ft2:'平方英尺',acre:'英亩'}};
+    function updateUnits(){
+      const cat=document.getElementById('category').value;
+      const from=document.getElementById('from');const to=document.getElementById('to');
+      from.innerHTML='';to.innerHTML='';
+      Object.keys(UNITS[cat]).forEach(u=>{from.add(new Option(NAMES[cat][u],u));to.add(new Option(NAMES[cat][u],u));});
+      to.selectedIndex=1;convert();
     }
-    function convertWeight() {
-      const v = parseFloat(document.getElementById('weightVal').value) || 0;
-      const from = weightRates[document.getElementById('weightFrom').value];
-      const to = weightRates[document.getElementById('weightTo').value];
-      document.getElementById('weightOut').textContent = (v * from / to).toFixed(6);
-      logTool('unit', 'weight');
-    }
-    function convertTemp() {
-      const v = parseFloat(document.getElementById('tempVal').value) || 0;
-      const from = document.getElementById('tempFrom').value;
-      const to = document.getElementById('tempTo').value;
-      let c;
-      if (from === 'c') c = v;
-      else if (from === 'f') c = (v - 32) * 5/9;
-      else c = v - 273.15;
+    function convert(){
+      const cat=document.getElementById('category').value;
+      const v=parseFloat(document.getElementById('val').value)||0;
+      const f=document.getElementById('from').value;const t=document.getElementById('to').value;
       let r;
-      if (to === 'c') r = c;
-      else if (to === 'f') r = c * 9/5 + 32;
-      else r = c + 273.15;
-      document.getElementById('tempOut').textContent = r.toFixed(2);
-      logTool('unit', 'temp');
+      if(cat==='temp'){
+        let c;if(f==='c')c=v;else if(f==='f')c=(v-32)*5/9;else c=v-273.15;
+        if(t==='c')r=c;else if(t==='f')r=c*9/5+32;else r=c+273.15;
+      }else{r=v*UNITS[cat][f]/UNITS[cat][t];}
+      document.getElementById('result').textContent=`${v} ${NAMES[cat][f]} = ${r.toLocaleString('zh-CN',{maximumFractionDigits:6})} ${NAMES[cat][t]}`;
+      logToolUsage('unit','convert');
+      renderAll(cat,v,f);
     }
-    convertLen(); convertWeight(); convertTemp();
+    function renderAll(cat,v,f){
+      const container=document.getElementById('allUnits');
+      let html='';
+      Object.keys(UNITS[cat]).forEach(u=>{
+        if(u===f)return;
+        let r;if(cat==='temp'){let c;if(f==='c')c=v;else if(f==='f')c=(v-32)*5/9;else c=v-273.15;if(u==='c')r=c;else if(u==='f')r=c*9/5+32;else r=c+273.15;}
+        else{r=v*UNITS[cat][f]/UNITS[cat][u];}
+        html+=`<div class="card" style="padding:12px 16px"><div style="font-size:12px;color:var(--text-muted)">${NAMES[cat][u]}</div><div style="font-family:var(--font-mono);font-size:16px;margin-top:4px">${r.toLocaleString('zh-CN',{maximumFractionDigits:6})}</div></div>`;
+      });
+      container.innerHTML=html;
+    }
+    updateUnits();
   </script>
 </body>
 </html>

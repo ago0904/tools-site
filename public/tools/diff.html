@@ -3,64 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文本对比</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>文本对比 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
+  <style>.diff-add{background:rgba(63,185,80,.15);color:#3fb950}.diff-del{background:rgba(248,81,73,.15);color:#f85149;text-decoration:line-through}.diff-line{font-family:var(--font-mono);font-size:12px;line-height:1.8;padding:2px 8px;border-left:2px solid transparent}.diff-line.add{border-left-color:#3fb950}.diff-line.del{border-left-color:#f85149}</style>
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>📝 文本对比</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="row">
-      <div class="tool-box">
-        <h3>文本 A</h3>
-        <textarea id="textA" placeholder="第一段文本..."></textarea>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">文本对比</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋 复制</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>原文本 A</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearA()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="inputA" placeholder="文本 A...">Hello World
+This is line 2
+Same line
+Old line here</textarea></div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="compare()" title="对比">▶️</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span>对比文本 B</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearB()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="inputB" placeholder="文本 B...">Hello World
+This is line 2 changed
+Same line
+New line here</textarea></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">差异结果</span></div>
+          <div id="diffResult" style="background:var(--bg-primary);border-radius:8px;overflow:auto;max-height:400px"><div class="empty-state">点击上方 ▶️ 对比按钮查看差异</div></div>
+        </div>
       </div>
-      <div class="tool-box">
-        <h3>文本 B</h3>
-        <textarea id="textB" placeholder="第二段文本..."></textarea>
-      </div>
-    </div>
-    <div class="tool-box">
-      <button class="btn" onclick="compare()">对比差异</button>
-      <button class="btn btn-secondary" onclick="clearAll()">清空</button>
-      <div id="result" class="output-box" style="margin-top:12px"></div>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    function compare() {
-      const a = document.getElementById('textA').value.split('\n');
-      const b = document.getElementById('textB').value.split('\n');
-      const result = document.getElementById('result');
-      let html = '';
-      const max = Math.max(a.length, b.length);
-      for (let i = 0; i < max; i++) {
-        const lineA = a[i] || '';
-        const lineB = b[i] || '';
-        if (lineA !== lineB) {
-          if (lineA) html += `<div class="diff-removed">- ${escapeHtml(lineA)}</div>`;
-          if (lineB) html += `<div class="diff-added">+ ${escapeHtml(lineB)}</div>`;
-        } else {
-          html += `<div>${escapeHtml(lineA)}</div>`;
-        }
+    renderToolPage('diff','文本对比','text');
+    function clearA(){document.getElementById('inputA').value='';}
+    function clearB(){document.getElementById('inputB').value='';}
+    function compare(){
+      const a=document.getElementById('inputA').value.split('\n');
+      const b=document.getElementById('inputB').value.split('\n');
+      let html='';
+      const max=Math.max(a.length,b.length);
+      for(let i=0;i<max;i++){
+        const la=a[i]||'', lb=b[i]||'';
+        if(la===lb){html+=`<div class="diff-line">${escapeHtml(la)||'&nbsp;'}</div>`;}
+        else{html+=`<div class="diff-line del">- ${escapeHtml(la)||''}</div><div class="diff-line add">+ ${escapeHtml(lb)||''}</div>`;}
       }
-      result.innerHTML = html || '✅ 两段文本完全一致';
-      logTool('diff', 'compare');
+      document.getElementById('diffResult').innerHTML=html;
+      logToolUsage('diff','compare');
     }
-    function escapeHtml(t) {
-      return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-    function clearAll() {
-      document.getElementById('textA').value = '';
-      document.getElementById('textB').value = '';
-      document.getElementById('result').textContent = '';
-    }
+    function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+    function copyOutput(){const r=document.getElementById('diffResult').innerText;if(r.trim())copyToClipboard(r);else showToast('无内容');}
   </script>
 </body>
 </html>

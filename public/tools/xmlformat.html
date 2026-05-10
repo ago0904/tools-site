@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XML 格式化 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">XML 格式化</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入 XML</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="粘贴 XML..."></textarea></div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="formatXML()" title="格式化">✨</button>
+            <button class="btn btn-sm" onclick="minifyXML()" title="压缩">🗜️</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span>输出</span><div class="panel-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('xmlformat','XML 格式化','format');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('output').value='';}
+    function formatXML(){const v=document.getElementById('input').value.trim();if(!v){showToast('请输入 XML');return;}try{const p=new DOMParser();const d=p.parseFromString(v,'text/xml');const s=new XMLSerializer();let formatted=formatXmlStr(s.serializeToString(d));document.getElementById('output').value=formatted;logToolUsage('xmlformat','format');}catch(e){document.getElementById('output').value='❌ '+e.message;}}
+    function minifyXML(){const v=document.getElementById('input').value.trim();if(!v){showToast('请输入 XML');return;}document.getElementById('output').value=v.replace(/>\s+</g,'><').replace(/\s+/g,' ').trim();logToolUsage('xmlformat','minify');}
+    function formatXmlStr(xml){let formatted='';let indent=0;xml.match(/<[^>]+>[^<]*</g)||[]).forEach(node=>{const isClosing=node.startsWith('</');const isSelfClosing=node.endsWith('/>');if(isClosing)indent--;formatted+='  '.repeat(indent)+node+'\n';if(!isClosing&&!isSelfClosing)indent++;});return formatted;}
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+  </script>
+</body>
+</html>

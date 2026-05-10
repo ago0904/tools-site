@@ -3,82 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON 格式化工具</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>JSON 格式化 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>📋 JSON 格式化工具</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="row">
-      <div class="tool-box">
-        <h3>输入 JSON</h3>
-        <textarea id="input" placeholder='{"key":"value"}'></textarea>
-        <div style="margin-top:12px">
-          <button class="btn" onclick="formatJSON()">格式化</button>
-          <button class="btn btn-secondary" onclick="compactJSON()">压缩</button>
-          <button class="btn btn-secondary" onclick="validateJSON()">验证</button>
-          <button class="btn btn-secondary" onclick="copyOutput()">复制结果</button>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">JSON 格式化</div>
+        <div class="topbar-actions">
+          <button class="btn btn-sm" onclick="copyOutput()">📋 复制结果</button>
+          <button class="btn btn-sm" onclick="downloadOutput()">💾 下载</button>
+          <a href="/" class="btn btn-sm">🏠 首页</a>
+        </div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header">
+              <span>输入 JSON</span>
+              <div class="panel-actions">
+                <button class="btn btn-sm" onclick="pasteInput()">📋 粘贴</button>
+                <button class="btn btn-sm" onclick="clearInput()">🗑️ 清空</button>
+                <button class="btn btn-sm" onclick="loadSample()">📄 示例</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <textarea class="code-editor" id="input" placeholder="在此粘贴 JSON 数据..."></textarea>
+            </div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="formatJSON()" title="格式化">▶️</button>
+            <button class="btn btn-sm" onclick="compressJSON()" title="压缩">🗜️</button>
+            <button class="btn btn-sm" onclick="validateJSON()" title="验证">✅</button>
+            <button class="btn btn-sm" onclick="escapeJSON()" title="转义">↩️</button>
+            <button class="btn btn-sm" onclick="unescapeJSON()" title="反转义">↪️</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span>输出结果</span>
+              <div class="panel-actions">
+                <button class="btn btn-sm" onclick="copyOutput()">📋 复制</button>
+                <button class="btn btn-sm" onclick="downloadOutput()">💾 下载</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <textarea class="code-editor" id="output" placeholder="结果将显示在这里..." readonly></textarea>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="tool-box">
-        <h3>结果</h3>
-        <div id="output" class="output-box"></div>
-        <p class="hint" id="hint"></p>
-      </div>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
+    renderToolPage('json', 'JSON 格式化', 'json');
+
+    const sampleData = {
+      "name": "DevTools",
+      "version": "2.0",
+      "features": ["格式化", "验证", "压缩", "转代码"],
+      "config": { "theme": "dark", "lang": "zh-CN" },
+      "active": true
+    };
+
+    function loadSample() {
+      document.getElementById('input').value = JSON.stringify(sampleData, null, 2);
+    }
+
+    function pasteInput() {
+      navigator.clipboard.readText().then(t => document.getElementById('input').value = t).catch(() => showToast('无法读取剪贴板'));
+    }
+
+    function clearInput() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+    }
+
     function formatJSON() {
+      const input = document.getElementById('input').value.trim();
+      if (!input) { showToast('请输入 JSON'); return; }
       try {
-        const input = document.getElementById('input').value.trim();
-        if (!input) { document.getElementById('output').textContent = ''; return; }
         const obj = JSON.parse(input);
-        document.getElementById('output').textContent = JSON.stringify(obj, null, 2);
-        document.getElementById('hint').textContent = '✅ 格式化成功';
-        logTool('json', 'format');
+        document.getElementById('output').value = JSON.stringify(obj, null, 2);
+        logToolUsage('json', 'format');
       } catch (e) {
-        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
-        document.getElementById('hint').textContent = '';
+        document.getElementById('output').value = '❌ JSON 格式错误: ' + e.message;
       }
     }
-    function compactJSON() {
+
+    function compressJSON() {
+      const input = document.getElementById('input').value.trim();
+      if (!input) { showToast('请输入 JSON'); return; }
       try {
-        const input = document.getElementById('input').value.trim();
-        if (!input) { document.getElementById('output').textContent = ''; return; }
         const obj = JSON.parse(input);
-        document.getElementById('output').textContent = JSON.stringify(obj);
-        document.getElementById('hint').textContent = '✅ 压缩成功';
-        logTool('json', 'compact');
+        document.getElementById('output').value = JSON.stringify(obj);
+        logToolUsage('json', 'compress');
       } catch (e) {
-        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
+        document.getElementById('output').value = '❌ JSON 格式错误: ' + e.message;
       }
     }
+
     function validateJSON() {
+      const input = document.getElementById('input').value.trim();
+      if (!input) { showToast('请输入 JSON'); return; }
       try {
-        const input = document.getElementById('input').value.trim();
-        if (!input) { document.getElementById('output').textContent = ''; return; }
         JSON.parse(input);
-        document.getElementById('output').textContent = '✅ JSON 格式正确';
-        document.getElementById('hint').textContent = '';
-        logTool('json', 'validate');
+        document.getElementById('output').value = '✅ JSON 格式正确';
+        logToolUsage('json', 'validate');
       } catch (e) {
-        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
+        document.getElementById('output').value = '❌ JSON 格式错误: ' + e.message;
       }
     }
+
+    function escapeJSON() {
+      const input = document.getElementById('input').value;
+      if (!input) { showToast('请输入内容'); return; }
+      document.getElementById('output').value = JSON.stringify(input).slice(1, -1);
+      logToolUsage('json', 'escape');
+    }
+
+    function unescapeJSON() {
+      const input = document.getElementById('input').value;
+      if (!input) { showToast('请输入内容'); return; }
+      try {
+        document.getElementById('output').value = JSON.parse('"' + input.replace(/"/g, '\\"') + '"');
+        logToolUsage('json', 'unescape');
+      } catch (e) {
+        document.getElementById('output').value = '❌ 解析失败: ' + e.message;
+      }
+    }
+
     function copyOutput() {
-      const text = document.getElementById('output').textContent;
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById('hint').textContent = '✅ 已复制到剪贴板';
-      });
+      const out = document.getElementById('output').value;
+      if (out) copyToClipboard(out); else showToast('没有可复制的内容');
+    }
+
+    function downloadOutput() {
+      const out = document.getElementById('output').value;
+      if (out) downloadText('output.json', out); else showToast('没有可下载的内容');
     }
   </script>
 </body>

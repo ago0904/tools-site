@@ -3,49 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>二维码生成</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>二维码生成 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▪️</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>📱 二维码生成</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="tool-box">
-      <h3>输入文本 / URL</h3>
-      <textarea id="input" placeholder="https://example.com 或任意文本..."></textarea>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="generateQR()">生成二维码</button>
-        <label style="margin-left:12px">尺寸: <input type="number" id="size" value="200" min="100" max="500" style="width:70px"></label>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">二维码生成</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入</span></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="输入文本或 URL...">https://github.com/ago0904/tools-site</textarea></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <div style="flex:1"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">尺寸</div><input class="input" type="number" id="size" value="256" min="64" max="1024"></div>
+              <div style="flex:1"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">颜色</div><input class="input" id="fg" value="#000000"></div>
+              <div style="flex:1"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">背景</div><input class="input" id="bg" value="#ffffff"></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="generate()">▶️ 生成</button>
+          </div>
+          <div class="middle-actions"></div>
+          <div class="panel">
+            <div class="panel-header"><span>结果</span><div class="panel-actions"><button class="btn btn-sm" onclick="downloadQR()">💾 下载</button></div></div>
+            <div class="panel-body" style="display:flex;align-items:center;justify-content:center"><div id="qrcode" style="padding:16px;background:#fff;border-radius:8px"></div></div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="tool-box" style="text-align:center">
-      <h3>二维码</h3>
-      <img id="qrimg" src="" alt="二维码" style="max-width:100%;display:none">
-      <p class="hint" id="qrhint">输入内容后点击生成</p>
-      <br>
-      <a id="qrlink" href="#" download="qrcode.png" style="display:none" class="btn">下载图片</a>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    function generateQR() {
-      const text = document.getElementById('input').value.trim();
-      if (!text) return;
-      const size = document.getElementById('size').value || 200;
-      const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
-      document.getElementById('qrimg').src = url;
-      document.getElementById('qrimg').style.display = 'block';
-      document.getElementById('qrhint').textContent = '';
-      document.getElementById('qrlink').href = url;
-      document.getElementById('qrlink').style.display = 'inline-block';
-      logTool('qrcode', 'generate');
+    renderToolPage('qrcode','二维码生成','gen');
+    let qrObj=null;
+    function generate(){
+      const v=document.getElementById('input').value;
+      if(!v){showToast('请输入内容');return;}
+      const container=document.getElementById('qrcode');
+      container.innerHTML='';
+      const size=parseInt(document.getElementById('size').value)||256;
+      qrObj=new QRCode(container,{text:v,width:size,height:size,colorDark:document.getElementById('fg').value||'#000000',colorLight:document.getElementById('bg').value||'#ffffff'});
+      logToolUsage('qrcode','generate');
     }
+    function downloadQR(){
+      const img=document.querySelector('#qrcode img');
+      if(!img){showToast('请先生成二维码');return;}
+      const a=document.createElement('a');a.href=img.src;a.download='qrcode.png';document.body.appendChild(a);a.click();document.body.removeChild(a);
+    }
+    generate();
   </script>
 </body>
 </html>

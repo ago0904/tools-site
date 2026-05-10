@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>条形码生成 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>┃</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">条形码生成</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input class="input" id="input" value="123456789012" placeholder="输入内容">
+            <button class="btn btn-primary" onclick="generate()">▶️ 生成</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;padding:32px">
+          <svg id="barcode" style="max-width:100%"></svg>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('barcode','条形码生成','gen');
+    function generate(){
+      const v=document.getElementById('input').value;
+      if(!v){showToast('请输入内容');return;}
+      const svg=document.getElementById('barcode');
+      svg.innerHTML='';
+      const w=2,h=80,p=20;
+      let x=p;
+      for(let i=0;i<v.length;i++){
+        const code=v.charCodeAt(i);
+        for(let b=0;b<8;b++){
+          if((code>>b)&1){
+            const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+            rect.setAttribute('x',x);rect.setAttribute('y',10);rect.setAttribute('width',w);rect.setAttribute('height',h);
+            rect.setAttribute('fill','#000');svg.appendChild(rect);
+          }
+          x+=w;
+        }
+        x+=w;
+      }
+      const text=document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x',x/2);text.setAttribute('y',h+30);text.setAttribute('text-anchor','middle');
+      text.setAttribute('font-family','monospace');text.setAttribute('font-size','14');text.setAttribute('fill','var(--text-primary)');
+      text.textContent=v;svg.appendChild(text);
+      svg.setAttribute('width',x+p);svg.setAttribute('height',h+40);
+      logToolUsage('barcode','generate');
+    }
+    generate();
+  </script>
+</body>
+</html>

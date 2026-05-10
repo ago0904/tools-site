@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cron 表达式 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">Cron 表达式</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">解析 Cron</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input class="input" id="cron" value="0 9 * * 1-5" placeholder="* * * * *">
+            <button class="btn btn-primary" onclick="parseCron()">▶️ 解析</button>
+          </div>
+          <div id="cronResult" style="font-size:15px;line-height:1.8"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">常用表达式</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="padding:10px 14px;display:flex;gap:12px;align-items:center"><code style="font-family:var(--font-mono);font-size:13px;min-width:120px">0 0 * * *</code><span>每天午夜</span><button class="btn btn-sm" style="margin-left:auto" onclick="setCron('0 0 * * *')">使用</button></div>
+            <div class="card" style="padding:10px 14px;display:flex;gap:12px;align-items:center"><code style="font-family:var(--font-mono);font-size:13px;min-width:120px">0 9 * * 1-5</code><span>工作日早上 9 点</span><button class="btn btn-sm" style="margin-left:auto" onclick="setCron('0 9 * * 1-5')">使用</button></div>
+            <div class="card" style="padding:10px 14px;display:flex;gap:12px;align-items:center"><code style="font-family:var(--font-mono);font-size:13px;min-width:120px">*/5 * * * *</code><span>每 5 分钟</span><button class="btn btn-sm" style="margin-left:auto" onclick="setCron('*/5 * * * *')">使用</button></div>
+            <div class="card" style="padding:10px 14px;display:flex;gap:12px;align-items:center"><code style="font-family:var(--font-mono);font-size:13px;min-width:120px">0 0 1 * *</code><span>每月 1 号</span><button class="btn btn-sm" style="margin-left:auto" onclick="setCron('0 0 1 * *')">使用</button></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('cron','Cron 表达式','gen');
+    function setCron(v){document.getElementById('cron').value=v;parseCron();}
+    function parseCron(){
+      const v=document.getElementById('cron').value.trim();
+      if(!v){showToast('请输入 Cron 表达式');return;}
+      const parts=v.split(/\s+/);
+      if(parts.length!==5){showToast('Cron 需要 5 个字段');return;}
+      const map=['分 (0-59)','时 (0-23)','日 (1-31)','月 (1-12)','周 (0-7)'];
+      let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+      parts.forEach((p,i)=>{html+=`<div class="card" style="padding:10px 14px"><div style="font-size:11px;color:var(--text-muted)">${map[i]}</div><div style="font-family:var(--font-mono);font-size:16px;margin-top:4px">${p}</div></div>`;});
+      html+='</div>';
+      let desc='';if(parts[0]==='0'&&parts[1]==='0'&&parts[2]==='*'&&parts[3]==='*'&&parts[4]==='*')desc='每天午夜 00:00 执行';
+      else if(parts[4]==='1-5')desc='工作日执行';
+      else if(parts[0].startsWith('*/'))desc=`每 ${parts[0].replace('*/','')} ${map[0].split(' ')[0]}执行`;
+      if(desc)html+=`<div style="margin-top:12px;padding:12px;background:var(--bg-tertiary);border-radius:8px;font-size:14px">📌 ${desc}</div>`;
+      document.getElementById('cronResult').innerHTML=html;
+      logToolUsage('cron','parse');
+    }
+    parseCron();
+  </script>
+</body>
+</html>

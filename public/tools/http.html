@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTTP 请求测试 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">HTTP 请求测试</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <select class="input" id="method" style="width:100px"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option><option>HEAD</option></select>
+            <input class="input" id="url" placeholder="https://api.example.com/data" value="https://httpbin.org/get">
+            <button class="btn btn-primary" onclick="sendRequest()">▶️ 发送</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button class="btn btn-sm" onclick="addHeader()">+ Header</button>
+            <button class="btn btn-sm" onclick="addParam()">+ 参数</button>
+          </div>
+          <div id="headers" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+          <div id="params" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Body (JSON)</div>
+          <textarea class="code-editor" id="body" style="min-height:80px" placeholder="{}"></textarea>
+        </div>
+        <div class="divider"></div>
+        <div class="card" id="responseCard" style="display:none">
+          <div class="card-header"><span class="card-title">响应</span><span class="badge" id="statusBadge">--</span></div>
+          <div id="responseTime" style="font-size:12px;color:var(--text-muted);margin-bottom:8px"></div>
+          <pre id="responseBody" style="background:var(--bg-primary);padding:16px;border-radius:8px;overflow:auto;max-height:500px;font-family:var(--font-mono);font-size:12px;line-height:1.6"></pre>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('http','HTTP 请求测试','net');
+    function addHeader(){const d=document.getElementById('headers');const row=document.createElement('div');row.style.cssText='display:flex;gap:6px';row.innerHTML='<input class="input" placeholder="Key" style="flex:1"><input class="input" placeholder="Value" style="flex:1"><button class="btn btn-sm" onclick="this.parentElement.remove()">✕</button>';d.appendChild(row);}
+    function addParam(){const d=document.getElementById('params');const row=document.createElement('div');row.style.cssText='display:flex;gap:6px';row.innerHTML='<input class="input" placeholder="Key" style="flex:1"><input class="input" placeholder="Value" style="flex:1"><button class="btn btn-sm" onclick="this.parentElement.remove()">✕</button>';d.appendChild(row);}
+    async function sendRequest(){
+      const url=document.getElementById('url').value;if(!url){showToast('请输入 URL');return;}
+      const method=document.getElementById('method').value;
+      const headers={};document.querySelectorAll('#headers > div').forEach(r=>{const k=r.children[0].value,v=r.children[1].value;if(k)headers[k]=v;});
+      const params={};document.querySelectorAll('#params > div').forEach(r=>{const k=r.children[0].value,v=r.children[1].value;if(k)params[k]=v;});
+      let finalUrl=url;if(Object.keys(params).length){const u=new URL(url);Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));finalUrl=u.toString();}
+      const opts={method,headers};
+      if(method!=='GET'&&method!=='HEAD'){const b=document.getElementById('body').value.trim();if(b){try{JSON.parse(b);headers['Content-Type']='application/json';opts.body=b;}catch(e){showToast('JSON Body 格式错误');return;}}}
+      document.getElementById('responseCard').style.display='block';
+      document.getElementById('responseBody').textContent='请求中...';
+      const start=performance.now();
+      try{const res=await fetch(finalUrl,opts);const end=performance.now();
+      document.getElementById('statusBadge').textContent=`${res.status} ${res.statusText}`;
+      document.getElementById('statusBadge').style.background=res.ok?'var(--success)':'var(--danger)';
+      document.getElementById('statusBadge').style.color='#fff';
+      document.getElementById('responseTime').textContent=`耗时: ${(end-start).toFixed(1)}ms`;
+      let text=await res.text();try{const json=JSON.parse(text);text=JSON.stringify(json,null,2);}catch(e){}
+      document.getElementById('responseBody').textContent=text;
+      logToolUsage('http',method.toLowerCase());
+      }catch(e){document.getElementById('statusBadge').textContent='Error';document.getElementById('statusBadge').style.background='var(--danger)';document.getElementById('responseBody').textContent='❌ '+e.message;}
+    }
+  </script>
+</body>
+</html>

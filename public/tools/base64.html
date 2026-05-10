@@ -3,65 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base64 编解码</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>Base64 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>🔐 Base64 编解码</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="row">
-      <div class="tool-box">
-        <h3>输入</h3>
-        <textarea id="input" placeholder="输入文本..."></textarea>
-        <div style="margin-top:12px">
-          <button class="btn" onclick="encode()">编码 → Base64</button>
-          <button class="btn btn-secondary" onclick="decode()">解码 ← Base64</button>
-          <button class="btn btn-secondary" onclick="copyOutput()">复制</button>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">Base64 编解码</div>
+        <div class="topbar-actions">
+          <button class="btn btn-sm" onclick="copyOutput()">📋 复制结果</button>
+          <a href="/" class="btn btn-sm">🏠 首页</a>
+        </div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header">
+              <span>输入</span>
+              <div class="panel-actions">
+                <button class="btn btn-sm" onclick="clearAll()">🗑️ 清空</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <textarea class="code-editor" id="input" placeholder="在此输入文本..."></textarea>
+            </div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="encode()" title="编码">🔒</button>
+            <button class="btn btn-sm" onclick="decode()" title="解码">🔓</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span>输出</span>
+              <div class="panel-actions">
+                <button class="btn btn-sm" onclick="copyOutput()">📋 复制</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <textarea class="code-editor" id="output" placeholder="结果将显示在这里..." readonly></textarea>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="tool-box">
-        <h3>结果</h3>
-        <div id="output" class="output-box"></div>
-        <p class="hint" id="hint"></p>
-      </div>
-    </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
+    renderToolPage('base64', 'Base64', 'encode');
     function encode() {
-      const input = document.getElementById('input').value;
-      try {
-        document.getElementById('output').textContent = btoa(unescape(encodeURIComponent(input)));
-        document.getElementById('hint').textContent = '✅ 编码成功';
-        logTool('base64', 'encode');
-      } catch(e) {
-        document.getElementById('output').textContent = '❌ 编码失败: ' + e.message;
-      }
+      const v = document.getElementById('input').value;
+      if (!v) { showToast('请输入内容'); return; }
+      try { document.getElementById('output').value = btoa(unescape(encodeURIComponent(v))); logToolUsage('base64', 'encode'); }
+      catch (e) { document.getElementById('output').value = '❌ 编码失败: ' + e.message; }
     }
     function decode() {
-      const input = document.getElementById('input').value.trim();
-      try {
-        document.getElementById('output').textContent = decodeURIComponent(escape(atob(input)));
-        document.getElementById('hint').textContent = '✅ 解码成功';
-        logTool('base64', 'decode');
-      } catch(e) {
-        document.getElementById('output').textContent = '❌ 解码失败: ' + e.message;
-      }
+      const v = document.getElementById('input').value;
+      if (!v) { showToast('请输入内容'); return; }
+      try { document.getElementById('output').value = decodeURIComponent(escape(atob(v))); logToolUsage('base64', 'decode'); }
+      catch (e) { document.getElementById('output').value = '❌ 解码失败: 无效的 Base64'; }
     }
-    function copyOutput() {
-      const text = document.getElementById('output').textContent;
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById('hint').textContent = '✅ 已复制';
-      });
-    }
+    function clearAll() { document.getElementById('input').value = ''; document.getElementById('output').value = ''; }
+    function copyOutput() { const o = document.getElementById('output').value; if (o) copyToClipboard(o); else showToast('无内容'); }
   </script>
 </body>
 </html>

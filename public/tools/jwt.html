@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JWT 解析 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">JWT 解析</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">JWT Token</span></div>
+          <textarea class="code-editor" id="input" style="min-height:80px" placeholder="粘贴 JWT Token...">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</textarea>
+          <button class="btn btn-primary" style="margin-top:8px" onclick="decodeJWT()">▶️ 解析</button>
+        </div>
+        <div class="divider"></div>
+        <div id="result" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card"><div class="card-header"><span class="card-title">Header</span></div><pre id="headerOut" style="font-family:var(--font-mono);font-size:12px;overflow:auto"></pre></div>
+          <div class="card"><div class="card-header"><span class="card-title">Payload</span></div><pre id="payloadOut" style="font-family:var(--font-mono);font-size:12px;overflow:auto"></pre></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('jwt','JWT 解析','encode');
+    function decodeJWT(){
+      const v=document.getElementById('input').value.trim();
+      if(!v){showToast('请输入 JWT');return;}
+      const parts=v.split('.');
+      if(parts.length!==3){showToast('无效的 JWT 格式');return;}
+      try{
+        const h=JSON.parse(atob(parts[0].replace(/-/g,'+').replace(/_/g,'/')));
+        const p=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+        document.getElementById('headerOut').textContent=JSON.stringify(h,null,2);
+        document.getElementById('payloadOut').textContent=JSON.stringify(p,null,2);
+        logToolUsage('jwt','decode');
+      }catch(e){showToast('解析失败: '+e.message);}
+    }
+    function copyOutput(){const h=document.getElementById('headerOut').textContent;const p=document.getElementById('payloadOut').textContent;if(h||p)copyToClipboard('Header:\n'+h+'\n\nPayload:\n'+p);else showToast('无内容');}
+    decodeJWT();
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UUID 生成 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🆔</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">UUID 生成</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">配置</span></div>
+          <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
+            <div style="flex:1"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">生成数量</div><input class="input" type="number" id="count" value="10" min="1" max="100"></div>
+            <div style="flex:1"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">版本</div>
+              <select class="input" id="ver"><option value="v4">UUID v4 (随机)</option><option value="v1">UUID v1 (时间)</option></select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="generate()">▶️ 生成</button>
+        </div>
+        <div class="divider"></div>
+        <div id="results"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('uuid','UUID 生成','gen');
+    function uuidv4(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c=='x'?r:(r&0x3|0x8);return v.toString(16);});}
+    function generate(){
+      const count=parseInt(document.getElementById('count').value)||10;
+      let html='<div style="display:flex;flex-direction:column;gap:6px">';
+      for(let i=0;i<count;i++){
+        const u=uuidv4();
+        html+=`<div class="card" style="display:flex;align-items:center;gap:12px;padding:10px 14px">
+          <code style="flex:1;font-family:var(--font-mono);font-size:13px">${u}</code>
+          <button class="btn btn-sm" onclick="copyToClipboard('${u}')">📋</button>
+        </div>`;
+      }
+      html+='</div>';
+      document.getElementById('results').innerHTML=html;
+      logToolUsage('uuid','generate');
+    }
+    generate();
+  </script>
+</body>
+</html>

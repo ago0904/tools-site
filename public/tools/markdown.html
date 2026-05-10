@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown 预览 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📃</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">Markdown 预览</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>Markdown</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="# 标题
+
+在这里输入 Markdown..."># Hello DevTools
+
+这是一个 **Markdown** 预览工具。
+
+- 支持实时预览
+- 支持标准 Markdown 语法
+- 代码高亮
+
+```js
+console.log("Hello World");
+```</textarea></div>
+          </div>
+          <div class="middle-actions"><button class="btn btn-primary" onclick="render()" title="刷新">🔄</button></div>
+          <div class="panel">
+            <div class="panel-header"><span>预览</span></div>
+            <div class="panel-body"><div id="preview" style="background:#fff;color:#000;padding:20px;border-radius:8px;overflow:auto;min-height:300px;max-height:600px;font-size:14px;line-height:1.6"></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('markdown','Markdown 预览','text');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('preview').innerHTML='';}
+    function render(){
+      const v=document.getElementById('input').value;
+      document.getElementById('preview').innerHTML=marked.parse(v);
+      logToolUsage('markdown','render');
+    }
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON 转代码 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">JSON 转代码</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div style="display:flex;gap:12px;margin-bottom:12px">
+            <select class="input" id="lang" style="width:150px">
+              <option value="ts">TypeScript</option>
+              <option value="go">Go</option>
+              <option value="java">Java</option>
+              <option value="python">Python</option>
+              <option value="csharp">C#</option>
+              <option value="swift">Swift</option>
+            </select>
+            <input class="input" id="className" value="Root" placeholder="类名">
+            <button class="btn btn-primary" onclick="generate()">▶️ 生成</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入 JSON</span></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="粘贴 JSON...">{"name":"DevTools","version":2.0,"features":["格式化","编码"],"active":true}</textarea></div>
+          </div>
+          <div class="middle-actions"></div>
+          <div class="panel">
+            <div class="panel-header"><span>生成的代码</span></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('json2code','JSON 转代码','json');
+    function generate(){
+      const v=document.getElementById('input').value.trim();
+      if(!v){showToast('请输入 JSON');return;}
+      let obj;try{obj=JSON.parse(v);}catch(e){showToast('JSON 格式错误');return;}
+      const lang=document.getElementById('lang').value;
+      const name=document.getElementById('className').value||'Root';
+      let out='';
+      if(lang==='ts')out=genTS(obj,name);
+      else if(lang==='go')out=genGo(obj,name);
+      else if(lang==='java')out=genJava(obj,name);
+      else if(lang==='python')out=genPython(obj,name);
+      else if(lang==='csharp')out=genCSharp(obj,name);
+      else if(lang==='swift')out=genSwift(obj,name);
+      document.getElementById('output').value=out;
+      logToolUsage('json2code',lang);
+    }
+    function genTS(o,n){let s=`interface ${n} {\n`;for(const[k,v]of Object.entries(o)){const t=Array.isArray(v)?(v.length?(typeof v[0]==='object'?`${genTSName(k)}[]`:`${typeof v[0]}[]`):'any[]'):(typeof v==='object'&&v!==null?genTSName(k):typeof v);s+=`  ${k}${typeof v==='object'&&v!==null&&!Array.isArray(v)?'':(typeof v==='object'&&v===null?'?':'')}: ${t};\n`;}s+='}';return s;}
+    function genTSName(k){return k.charAt(0).toUpperCase()+k.slice(1);}
+    function genGo(o,n){let s=`type ${n} struct {\n`;for(const[k,v]of Object.entries(o)){const goK=k.charAt(0).toUpperCase()+k.slice(1);const t=Array.isArray(v)?'[]interface{}':(typeof v==='object'&&v!==null?genTSName(k):goType(v));const tag=` \`json:"${k}"\``;s+=`\t${goK} ${t}${tag}\n`;}s+='}';return s;}
+    function goType(v){if(v===null)return'interface{}';if(typeof v==='boolean')return'bool';if(typeof v==='number')return Number.isInteger(v)?'int':'float64';return'string';}
+    function genJava(o,n){let s=`public class ${n} {\n`;for(const[k,v]of Object.entries(o)){const t=Array.isArray(v)?'List<Object>':(typeof v==='object'&&v!==null?'Object':javaType(v));s+=`    public ${t} ${k};\n`;}s+='}';return s;}
+    function javaType(v){if(v===null)return'Object';if(typeof v==='boolean')return'Boolean';if(typeof v==='number')return Number.isInteger(v)?'Integer':'Double';return'String';}
+    function genPython(o,n){let s=`class ${n}:\n    def __init__(self):\n`;for(const[k,v]of Object.entries(o)){s+=`        self.${k} = None  # ${pythonType(v)}\n`;}return s;}
+    function pythonType(v){if(Array.isArray(v))return'list';if(typeof v==='object'&&v!==null)return'dict';if(typeof v==='boolean')return'bool';if(typeof v==='number')return Number.isInteger(v)?'int':'float';return'str';}
+    function genCSharp(o,n){let s=`public class ${n} {\n`;for(const[k,v]of Object.entries(o)){const t=Array.isArray(v)?'List<object>':(typeof v==='object'&&v!==null?'object':csType(v));s+=`    public ${t} ${k} { get; set; }\n`;}s+='}';return s;}
+    function csType(v){if(v===null)return'object';if(typeof v==='boolean')return'bool';if(typeof v==='number')return Number.isInteger(v)?'int':'double';return'string';}
+    function genSwift(o,n){let s=`struct ${n} {\n`;for(const[k,v]of Object.entries(o)){const t=Array.isArray(v)?'[Any]':(typeof v==='object'&&v!==null?'Any':swiftType(v));s+=`    var ${k}: ${t}\n`;}s+='}';return s;}
+    function swiftType(v){if(v===null)return'Any?';if(typeof v==='boolean')return'Bool';if(typeof v==='number')return Number.isInteger(v)?'Int':'Double';return'String';}
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+    generate();
+  </script>
+</body>
+</html>

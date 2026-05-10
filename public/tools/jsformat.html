@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS/HTML 格式化 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">JS / HTML 格式化</div>
+        <div class="topbar-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="粘贴 JS 或 HTML..."></textarea></div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-primary" onclick="beautify()" title="美化">✨</button>
+            <button class="btn btn-sm" onclick="minify()" title="压缩">🗜️</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span>输出</span><div class="panel-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.9/js/lib/beautify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.9/js/lib/beautify-html.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.9/js/lib/beautify-css.min.js"></script>
+  <script>
+    renderToolPage('jsformat','JS/HTML 格式化','format');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('output').value='';}
+    function beautify(){
+      const v=document.getElementById('input').value;if(!v){showToast('请输入代码');return;}
+      let out;try{if(v.trim().startsWith('<')){out=html_beautify(v);}else{out=js_beautify(v);}document.getElementById('output').value=out;logToolUsage('jsformat','beautify');}
+      catch(e){document.getElementById('output').value='❌ 格式化失败: '+e.message;}
+    }
+    function minify(){
+      const v=document.getElementById('input').value;if(!v){showToast('请输入代码');return;}
+      let out=v.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'').replace(/\n\s*/g,' ').replace(/\s+/g,' ').trim();
+      document.getElementById('output').value=out;logToolUsage('jsformat','minify');
+    }
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+  </script>
+</body>
+</html>

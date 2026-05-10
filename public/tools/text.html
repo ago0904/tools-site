@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本工具箱 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">文本工具箱</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>输入</span><div class="panel-actions"><button class="btn btn-sm" onclick="clearAll()">🗑️</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="在此输入文本..."></textarea></div>
+          </div>
+          <div class="middle-actions">
+            <button class="btn btn-sm" onclick="dedupe()" title="去重">🔄</button>
+            <button class="btn btn-sm" onclick="sortLines()" title="排序">📊</button>
+            <button class="btn btn-sm" onclick="reverseLines()" title="反转">🔀</button>
+            <button class="btn btn-sm" onclick="shuffleLines()" title="乱序">🎲</button>
+            <button class="btn btn-sm" onclick="upper()" title="大写">🔠</button>
+            <button class="btn btn-sm" onclick="lower()" title="小写">🔡</button>
+            <button class="btn btn-sm" onclick="trimLines()" title="去空白">✂️</button>
+            <button class="btn btn-sm" onclick="stats()" title="统计">📈</button>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span>输出</span><div class="panel-actions"><button class="btn btn-sm" onclick="copyOutput()">📋</button></div></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+        <div id="statPanel" style="margin-top:16px"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    renderToolPage('text','文本工具箱','text');
+    function clearAll(){document.getElementById('input').value='';document.getElementById('output').value='';document.getElementById('statPanel').innerHTML='';}
+    function getLines(){const v=document.getElementById('input').value;if(!v)return[];return v.split('\n');}
+    function setOut(arr){document.getElementById('output').value=Array.isArray(arr)?arr.join('\n'):arr;}
+    function dedupe(){const l=getLines();if(!l.length)return;const s=[...new Set(l)];setOut(s);showToast(`去重: ${l.length} → ${s.length}`);logToolUsage('text','dedupe');}
+    function sortLines(){const l=getLines();if(!l.length)return;l.sort();setOut(l);logToolUsage('text','sort');}
+    function reverseLines(){const l=getLines();if(!l.length)return;l.reverse();setOut(l);logToolUsage('text','reverse');}
+    function shuffleLines(){const l=getLines();if(!l.length)return;for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]];}setOut(l);logToolUsage('text','shuffle');}
+    function upper(){const v=document.getElementById('input').value;if(!v)return;setOut(v.toUpperCase());logToolUsage('text','upper');}
+    function lower(){const v=document.getElementById('input').value;if(!v)return;setOut(v.toLowerCase());logToolUsage('text','lower');}
+    function trimLines(){const l=getLines();if(!l.length)return;setOut(l.map(x=>x.trim()).filter(x=>x));logToolUsage('text','trim');}
+    function stats(){
+      const v=document.getElementById('input').value;
+      if(!v){showToast('请输入文本');return;}
+      const lines=v.split('\n').length;
+      const chars=v.length;
+      const words=v.trim().split(/\s+/).filter(x=>x).length;
+      const bytes=new Blob([v]).size;
+      document.getElementById('statPanel').innerHTML=`<div class="card"><div style="display:flex;gap:24px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--text-muted)">字符数</div><div style="font-size:24px;font-weight:600">${chars}</div></div><div><div style="font-size:11px;color:var(--text-muted)">单词数</div><div style="font-size:24px;font-weight:600">${words}</div></div><div><div style="font-size:11px;color:var(--text-muted)">行数</div><div style="font-size:24px;font-weight:600">${lines}</div></div><div><div style="font-size:11px;color:var(--text-muted)">字节</div><div style="font-size:24px;font-weight:600">${bytes}</div></div></div></div>`;
+      logToolUsage('text','stats');
+    }
+    function copyOutput(){const o=document.getElementById('output').value;if(o)copyToClipboard(o);else showToast('无内容');}
+  </script>
+</body>
+</html>

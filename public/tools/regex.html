@@ -3,72 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>正则表达式测试</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>正则测试 - DevTools</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
 </head>
-<body class="tool-page">
-  <header>
-    <div class="container">
-      <a href="../index.html" class="back">← 返回工具箱</a>
-      <h1>🔍 正则表达式测试</h1>
-    </div>
-  </header>
-
-  <div class="tool-container">
-    <div class="tool-box">
-      <h3>正则表达式</h3>
-      <input type="text" id="pattern" placeholder="[a-z]+" value="[a-z]+">
-      <label style="margin-left:8px"><input type="checkbox" id="global" checked> g</label>
-      <label><input type="checkbox" id="ignore"> i</label>
-      <label><input type="checkbox" id="multiline"> m</label>
-    </div>
-    <div class="tool-box">
-      <h3>测试文本</h3>
-      <textarea id="text" placeholder="输入要测试的文本...">Hello World 123</textarea>
-      <button class="btn" onclick="testRegex()">测试匹配</button>
-      <button class="btn btn-secondary" onclick="replaceRegex()">替换</button>
-      <input type="text" id="replaceWith" placeholder="替换为" value="[MATCHED]" style="margin-top:8px">
-    </div>
-    <div class="tool-box">
-      <h3>匹配结果</h3>
-      <div id="output" class="output-box"></div>
-    </div>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">正则测试</div>
+        <div class="topbar-actions"><a href="/" class="btn btn-sm">🏠 首页</a></div>
+      </header>
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">正则表达式</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input class="input" id="pattern" value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}" placeholder="正则表达式">
+            <select class="input" id="flags" style="width:120px"><option value="g">g</option><option value="gi">gi</option><option value="i">i</option><option value="m">m</option></select>
+          </div>
+          <div class="btn-group" style="margin-bottom:12px">
+            <button class="btn btn-primary" onclick="testRegex()">▶️ 测试匹配</button>
+            <button class="btn" onclick="replaceRegex()">🔄 替换</button>
+            <button class="btn" onclick="extractRegex()">📤 提取</button>
+            <input class="input" id="replacement" placeholder="替换内容 (可选)" style="flex:1;min-width:120px">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="tool-layout">
+          <div class="panel">
+            <div class="panel-header"><span>测试文本</span></div>
+            <div class="panel-body"><textarea class="code-editor" id="input" placeholder="在此输入测试文本...">Contact us at support@devtools.com or sales@example.org</textarea></div>
+          </div>
+          <div class="middle-actions"></div>
+          <div class="panel">
+            <div class="panel-header"><span>匹配结果</span></div>
+            <div class="panel-body"><textarea class="code-editor" id="output" placeholder="结果..." readonly></textarea></div>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">常用正则</div>
+          <div class="btn-group">
+            <button class="btn btn-sm" onclick="setPattern('^1[3-9]\\\\d{9}$')">手机号</button>
+            <button class="btn btn-sm" onclick="setPattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}')">邮箱</button>
+            <button class="btn btn-sm" onclick="setPattern('\\\\d{4}-\\\\d{2}-\\\\d{2}')">日期</button>
+            <button class="btn btn-sm" onclick="setPattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d).{8,}$')">强密码</button>
+            <button class="btn btn-sm" onclick="setPattern('^https?://.+')">URL</button>
+            <button class="btn btn-sm" onclick="setPattern('\\\\b\\\\d{1,3}(\\\\.\\\\d{1,3}){3}\\\\b')">IP</button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
-
-  <script src="../js/app.js"></script>
+  <script src="/js/common.js"></script>
   <script>
-    function testRegex() {
-      try {
-        let flags = '';
-        if (document.getElementById('global').checked) flags += 'g';
-        if (document.getElementById('ignore').checked) flags += 'i';
-        if (document.getElementById('multiline').checked) flags += 'm';
-        const re = new RegExp(document.getElementById('pattern').value, flags);
-        const text = document.getElementById('text').value;
-        const matches = [...text.matchAll(re)];
-        if (!matches.length) { document.getElementById('output').textContent = '无匹配'; return; }
-        document.getElementById('output').innerHTML = matches.map((m,i) =>
-          `匹配 ${i+1}: "${m[0]}" @ 位置 ${m.index}`
-        ).join('\n');
-        logTool('regex', 'test');
-      } catch(e) {
-        document.getElementById('output').textContent = '❌ 正则错误: ' + e.message;
-      }
+    renderToolPage('regex','正则测试','text');
+    function setPattern(p){document.getElementById('pattern').value=p;}
+    function testRegex(){
+      try{const p=new RegExp(document.getElementById('pattern').value,document.getElementById('flags').value);const t=document.getElementById('input').value;const m=t.match(p);document.getElementById('output').value=m?`匹配 ${m.length} 个:\n${m.join('\n')}`:'无匹配';logToolUsage('regex','test');}
+      catch(e){document.getElementById('output').value='❌ 正则错误: '+e.message;}
     }
-    function replaceRegex() {
-      try {
-        let flags = '';
-        if (document.getElementById('global').checked) flags += 'g';
-        if (document.getElementById('ignore').checked) flags += 'i';
-        if (document.getElementById('multiline').checked) flags += 'm';
-        const re = new RegExp(document.getElementById('pattern').value, flags);
-        const text = document.getElementById('text').value;
-        const rep = document.getElementById('replaceWith').value;
-        document.getElementById('output').textContent = text.replace(re, rep);
-        logTool('regex', 'replace');
-      } catch(e) {
-        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
-      }
+    function replaceRegex(){
+      try{const p=new RegExp(document.getElementById('pattern').value,document.getElementById('flags').value);const t=document.getElementById('input').value;const r=document.getElementById('replacement').value;document.getElementById('output').value=t.replace(p,r);logToolUsage('regex','replace');}
+      catch(e){document.getElementById('output').value='❌ 正则错误: '+e.message;}
+    }
+    function extractRegex(){
+      try{const p=new RegExp(document.getElementById('pattern').value,document.getElementById('flags').value);const t=document.getElementById('input').value;const m=t.match(p);document.getElementById('output').value=m?m.join('\n'):'无匹配';logToolUsage('regex','extract');}
+      catch(e){document.getElementById('output').value='❌ 正则错误: '+e.message;}
     }
   </script>
 </body>
