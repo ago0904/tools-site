@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>代码美化工具</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>✨ 代码美化</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="tool-box">
+      <h3>输入代码</h3>
+      <textarea id="input" placeholder="粘贴 CSS / XML / SQL 代码..."></textarea>
+      <div style="margin-top:12px">
+        <button class="btn" onclick="prettifyCSS()">CSS 美化</button>
+        <button class="btn btn-secondary" onclick="prettifyXML()">XML 美化</button>
+        <button class="btn btn-secondary" onclick="prettifySQL()">SQL 美化</button>
+        <button class="btn btn-secondary" onclick="minify()">压缩</button>
+        <button class="btn btn-secondary" onclick="copyOut()">复制</button>
+      </div>
+    </div>
+    <div class="tool-box">
+      <h3>结果</h3>
+      <div id="output" class="output-box"></div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function prettifyCSS() {
+      let css = document.getElementById('input').value;
+      css = css.replace(/\s*\{\s*/g, ' {\n  ')
+               .replace(/;\s*/g, ';\n  ')
+               .replace(/\s*\}\s*/g, '\n}\n')
+               .replace(/,\s*/g, ', ')
+               .replace(/\n\s*\n/g, '\n');
+      document.getElementById('output').textContent = css.trim();
+      logTool('prettify', 'css');
+    }
+    function prettifyXML() {
+      let xml = document.getElementById('input').value;
+      let formatted = '', indent = 0;
+      xml = xml.replace(/>\s*</g, '><');
+      const parts = xml.split(/(<[^>]+>)/g).filter(Boolean);
+      parts.forEach(node => {
+        if (node.match(/^<\/\w/)) indent--;
+        formatted += '  '.repeat(Math.max(0, indent)) + node + '\n';
+        if (node.match(/^<\w[^>]*[^\/]>$/)) indent++;
+      });
+      document.getElementById('output').textContent = formatted;
+      logTool('prettify', 'xml');
+    }
+    function prettifySQL() {
+      let sql = document.getElementById('input').value;
+      const keywords = ['SELECT','FROM','WHERE','JOIN','LEFT','RIGHT','INNER','OUTER','ON','GROUP','ORDER','BY','HAVING','LIMIT','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','DROP','INDEX','UNION','ALL'];
+      let formatted = sql;
+      keywords.forEach(kw => {
+        const re = new RegExp('\\b' + kw + '\\b', 'gi');
+        formatted = formatted.replace(re, '\n' + kw);
+      });
+      document.getElementById('output').textContent = formatted.replace(/\n\s*\n/g, '\n').trim();
+      logTool('prettify', 'sql');
+    }
+    function minify() {
+      let code = document.getElementById('input').value;
+      document.getElementById('output').textContent = code.replace(/\s+/g, ' ').trim();
+      logTool('prettify', 'minify');
+    }
+    function copyOut() {
+      const text = document.getElementById('output').textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+    }
+  </script>
+</body>
+</html>

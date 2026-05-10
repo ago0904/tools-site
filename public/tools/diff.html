@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本对比</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>📝 文本对比</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="row">
+      <div class="tool-box">
+        <h3>文本 A</h3>
+        <textarea id="textA" placeholder="第一段文本..."></textarea>
+      </div>
+      <div class="tool-box">
+        <h3>文本 B</h3>
+        <textarea id="textB" placeholder="第二段文本..."></textarea>
+      </div>
+    </div>
+    <div class="tool-box">
+      <button class="btn" onclick="compare()">对比差异</button>
+      <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+      <div id="result" class="output-box" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function compare() {
+      const a = document.getElementById('textA').value.split('\n');
+      const b = document.getElementById('textB').value.split('\n');
+      const result = document.getElementById('result');
+      let html = '';
+      const max = Math.max(a.length, b.length);
+      for (let i = 0; i < max; i++) {
+        const lineA = a[i] || '';
+        const lineB = b[i] || '';
+        if (lineA !== lineB) {
+          if (lineA) html += `<div class="diff-removed">- ${escapeHtml(lineA)}</div>`;
+          if (lineB) html += `<div class="diff-added">+ ${escapeHtml(lineB)}</div>`;
+        } else {
+          html += `<div>${escapeHtml(lineA)}</div>`;
+        }
+      }
+      result.innerHTML = html || '✅ 两段文本完全一致';
+      logTool('diff', 'compare');
+    }
+    function escapeHtml(t) {
+      return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function clearAll() {
+      document.getElementById('textA').value = '';
+      document.getElementById('textB').value = '';
+      document.getElementById('result').textContent = '';
+    }
+  </script>
+</body>
+</html>

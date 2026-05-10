@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON 格式化工具</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>📋 JSON 格式化工具</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="row">
+      <div class="tool-box">
+        <h3>输入 JSON</h3>
+        <textarea id="input" placeholder='{"key":"value"}'></textarea>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="formatJSON()">格式化</button>
+          <button class="btn btn-secondary" onclick="compactJSON()">压缩</button>
+          <button class="btn btn-secondary" onclick="validateJSON()">验证</button>
+          <button class="btn btn-secondary" onclick="copyOutput()">复制结果</button>
+        </div>
+      </div>
+      <div class="tool-box">
+        <h3>结果</h3>
+        <div id="output" class="output-box"></div>
+        <p class="hint" id="hint"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function formatJSON() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) { document.getElementById('output').textContent = ''; return; }
+        const obj = JSON.parse(input);
+        document.getElementById('output').textContent = JSON.stringify(obj, null, 2);
+        document.getElementById('hint').textContent = '✅ 格式化成功';
+        logTool('json', 'format');
+      } catch (e) {
+        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
+        document.getElementById('hint').textContent = '';
+      }
+    }
+    function compactJSON() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) { document.getElementById('output').textContent = ''; return; }
+        const obj = JSON.parse(input);
+        document.getElementById('output').textContent = JSON.stringify(obj);
+        document.getElementById('hint').textContent = '✅ 压缩成功';
+        logTool('json', 'compact');
+      } catch (e) {
+        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
+      }
+    }
+    function validateJSON() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) { document.getElementById('output').textContent = ''; return; }
+        JSON.parse(input);
+        document.getElementById('output').textContent = '✅ JSON 格式正确';
+        document.getElementById('hint').textContent = '';
+        logTool('json', 'validate');
+      } catch (e) {
+        document.getElementById('output').textContent = '❌ 错误: ' + e.message;
+      }
+    }
+    function copyOutput() {
+      const text = document.getElementById('output').textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('hint').textContent = '✅ 已复制到剪贴板';
+      });
+    }
+  </script>
+</body>
+</html>

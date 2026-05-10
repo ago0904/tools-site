@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>常用工具箱</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>🛠️ 常用工具箱</h1>
+      <p class="subtitle">开发者日常小工具集合</p>
+      <a href="/admin" class="admin-link" target="_blank">📊 后台管理</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="search-box">
+      <input type="text" id="search" placeholder="🔍 搜索工具..." autocomplete="off">
+    </div>
+
+    <div class="tools-grid" id="toolsGrid">
+      <!-- JSON 格式化 -->
+      <a href="tools/json.html" class="tool-card" data-name="json 格式化 验证">
+        <div class="icon">📋</div>
+        <h3>JSON 格式化</h3>
+        <p>格式化、验证、压缩 JSON</p>
+      </a>
+
+      <!-- Base64 -->
+      <a href="tools/base64.html" class="tool-card" data-name="base64 编码 解码">
+        <div class="icon">🔐</div>
+        <h3>Base64 编解码</h3>
+        <p>文本与 Base64 互转</p>
+      </a>
+
+      <!-- URL 编解码 -->
+      <a href="tools/url.html" class="tool-card" data-name="url 编码 解码">
+        <div class="icon">🔗</div>
+        <h3>URL 编解码</h3>
+        <p>URL 编码与解码</p>
+      </a>
+
+      <!-- 时间戳 -->
+      <a href="tools/timestamp.html" class="tool-card" data-name="时间戳 转换 日期">
+        <div class="icon">⏱️</div>
+        <h3>时间戳转换</h3>
+        <p>时间戳与日期时间互转</p>
+      </a>
+
+      <!-- 文本对比 -->
+      <a href="tools/diff.html" class="tool-card" data-name="文本对比 diff 差异">
+        <div class="icon">📝</div>
+        <h3>文本对比</h3>
+        <p>对比两段文本的差异</p>
+      </a>
+
+      <!-- 密码生成 -->
+      <a href="tools/password.html" class="tool-card" data-name="密码 生成 随机">
+        <div class="icon">🔑</div>
+        <h3>密码生成器</h3>
+        <p>生成强密码</p>
+      </a>
+
+      <!-- 颜色转换 -->
+      <a href="tools/color.html" class="tool-card" data-name="颜色 转换 hex rgb hsl">
+        <div class="icon">🎨</div>
+        <h3>颜色转换器</h3>
+        <p>HEX / RGB / HSL 互转</p>
+      </a>
+
+      <!-- 单位换算 -->
+      <a href="tools/unit.html" class="tool-card" data-name="单位 换算 长度 重量 温度">
+        <div class="icon">⚖️</div>
+        <h3>单位换算</h3>
+        <p>长度、重量、温度等换算</p>
+      </a>
+
+      <!-- 正则测试 -->
+      <a href="tools/regex.html" class="tool-card" data-name="正则 表达式 测试">
+        <div class="icon">🔍</div>
+        <h3>正则测试</h3>
+        <p>测试正则表达式匹配</p>
+      </a>
+
+      <!-- 哈希生成 -->
+      <a href="tools/hash.html" class="tool-card" data-name="哈希 md5 sha256 生成">
+        <div class="icon">#️⃣</div>
+        <h3>哈希生成</h3>
+        <p>MD5 / SHA256 / SHA512</p>
+      </a>
+
+      <!-- 代码美化 -->
+      <a href="tools/prettify.html" class="tool-card" data-name="代码 美化 格式化 css xml">
+        <div class="icon">✨</div>
+        <h3>代码美化</h3>
+        <p>CSS / XML / SQL 格式化</p>
+      </a>
+
+      <!-- 二维码 -->
+      <a href="tools/qrcode.html" class="tool-card" data-name="二维码 生成">
+        <div class="icon">📱</div>
+        <h3>二维码生成</h3>
+        <p>文本转二维码图片</p>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <p>Built with 🔥 · <a href="/admin" target="_blank">后台管理</a></p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

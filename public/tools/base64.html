@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 编解码</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>🔐 Base64 编解码</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="row">
+      <div class="tool-box">
+        <h3>输入</h3>
+        <textarea id="input" placeholder="输入文本..."></textarea>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="encode()">编码 → Base64</button>
+          <button class="btn btn-secondary" onclick="decode()">解码 ← Base64</button>
+          <button class="btn btn-secondary" onclick="copyOutput()">复制</button>
+        </div>
+      </div>
+      <div class="tool-box">
+        <h3>结果</h3>
+        <div id="output" class="output-box"></div>
+        <p class="hint" id="hint"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function encode() {
+      const input = document.getElementById('input').value;
+      try {
+        document.getElementById('output').textContent = btoa(unescape(encodeURIComponent(input)));
+        document.getElementById('hint').textContent = '✅ 编码成功';
+        logTool('base64', 'encode');
+      } catch(e) {
+        document.getElementById('output').textContent = '❌ 编码失败: ' + e.message;
+      }
+    }
+    function decode() {
+      const input = document.getElementById('input').value.trim();
+      try {
+        document.getElementById('output').textContent = decodeURIComponent(escape(atob(input)));
+        document.getElementById('hint').textContent = '✅ 解码成功';
+        logTool('base64', 'decode');
+      } catch(e) {
+        document.getElementById('output').textContent = '❌ 解码失败: ' + e.message;
+      }
+    }
+    function copyOutput() {
+      const text = document.getElementById('output').textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('hint').textContent = '✅ 已复制';
+      });
+    }
+  </script>
+</body>
+</html>

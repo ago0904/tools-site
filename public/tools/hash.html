@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>哈希生成器</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>#️⃣ 哈希生成器</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="tool-box">
+      <h3>输入文本</h3>
+      <textarea id="input" placeholder="输入文本...">hello</textarea>
+      <div style="margin-top:12px">
+        <button class="btn" onclick="hash('MD5')">MD5</button>
+        <button class="btn btn-secondary" onclick="hash('SHA-256')">SHA-256</button>
+        <button class="btn btn-secondary" onclick="hash('SHA-512')">SHA-512</button>
+        <button class="btn btn-secondary" onclick="hash('SHA-1')">SHA-1</button>
+      </div>
+    </div>
+    <div class="tool-box">
+      <h3>结果</h3>
+      <div id="output" class="output-box"></div>
+      <button class="btn btn-secondary" onclick="copyOut()" style="margin-top:8px">复制</button>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    async function hash(algo) {
+      const text = document.getElementById('input').value;
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest(algo, data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('output').textContent = `${algo}: ${hashHex}`;
+      logTool('hash', algo.toLowerCase().replace('-',''));
+    }
+    function copyOut() {
+      const text = document.getElementById('output').textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text.split(': ')[1]).then(() => {
+        document.getElementById('output').textContent += '\n✅ 已复制';
+      });
+    }
+    hash('MD5');
+  </script>
+</body>
+</html>

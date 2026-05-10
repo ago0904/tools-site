@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二维码生成</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>📱 二维码生成</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="tool-box">
+      <h3>输入文本 / URL</h3>
+      <textarea id="input" placeholder="https://example.com 或任意文本..."></textarea>
+      <div style="margin-top:12px">
+        <button class="btn" onclick="generateQR()">生成二维码</button>
+        <label style="margin-left:12px">尺寸: <input type="number" id="size" value="200" min="100" max="500" style="width:70px"></label>
+      </div>
+    </div>
+    <div class="tool-box" style="text-align:center">
+      <h3>二维码</h3>
+      <img id="qrimg" src="" alt="二维码" style="max-width:100%;display:none">
+      <p class="hint" id="qrhint">输入内容后点击生成</p>
+      <br>
+      <a id="qrlink" href="#" download="qrcode.png" style="display:none" class="btn">下载图片</a>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function generateQR() {
+      const text = document.getElementById('input').value.trim();
+      if (!text) return;
+      const size = document.getElementById('size').value || 200;
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+      document.getElementById('qrimg').src = url;
+      document.getElementById('qrimg').style.display = 'block';
+      document.getElementById('qrhint').textContent = '';
+      document.getElementById('qrlink').href = url;
+      document.getElementById('qrlink').style.display = 'inline-block';
+      logTool('qrcode', 'generate');
+    }
+  </script>
+</body>
+</html>

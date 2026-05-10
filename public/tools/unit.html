@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单位换算</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="tool-page">
+  <header>
+    <div class="container">
+      <a href="../index.html" class="back">← 返回工具箱</a>
+      <h1>⚖️ 单位换算</h1>
+    </div>
+  </header>
+
+  <div class="tool-container">
+    <div class="tool-box">
+      <h3>长度</h3>
+      <input type="number" id="lenVal" placeholder="1" value="1">
+      <select id="lenFrom">
+        <option value="m">米 (m)</option>
+        <option value="km">千米 (km)</option>
+        <option value="cm">厘米 (cm)</option>
+        <option value="mm">毫米 (mm)</option>
+        <option value="ft">英尺 (ft)</option>
+        <option value="in">英寸 (in)</option>
+      </select>
+      →
+      <select id="lenTo">
+        <option value="cm">厘米 (cm)</option>
+        <option value="m">米 (m)</option>
+        <option value="km">千米 (km)</option>
+        <option value="mm">毫米 (mm)</option>
+        <option value="ft">英尺 (ft)</option>
+        <option value="in">英寸 (in)</option>
+      </select>
+      <button class="btn" onclick="convertLen()">换算</button>
+      <div id="lenOut" class="output-box"></div>
+    </div>
+
+    <div class="tool-box">
+      <h3>重量</h3>
+      <input type="number" id="weightVal" placeholder="1" value="1">
+      <select id="weightFrom">
+        <option value="kg">千克 (kg)</option>
+        <option value="g">克 (g)</option>
+        <option value="lb">磅 (lb)</option>
+        <option value="oz">盎司 (oz)</option>
+      </select>
+      →
+      <select id="weightTo">
+        <option value="g">克 (g)</option>
+        <option value="kg">千克 (kg)</option>
+        <option value="lb">磅 (lb)</option>
+        <option value="oz">盎司 (oz)</option>
+      </select>
+      <button class="btn" onclick="convertWeight()">换算</button>
+      <div id="weightOut" class="output-box"></div>
+    </div>
+
+    <div class="tool-box">
+      <h3>温度</h3>
+      <input type="number" id="tempVal" placeholder="25" value="25">
+      <select id="tempFrom">
+        <option value="c">摄氏度 (°C)</option>
+        <option value="f">华氏度 (°F)</option>
+        <option value="k">开尔文 (K)</option>
+      </select>
+      →
+      <select id="tempTo">
+        <option value="f">华氏度 (°F)</option>
+        <option value="c">摄氏度 (°C)</option>
+        <option value="k">开尔文 (K)</option>
+      </select>
+      <button class="btn" onclick="convertTemp()">换算</button>
+      <div id="tempOut" class="output-box"></div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const lenRates = { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254 };
+    const weightRates = { kg:1, g:0.001, lb:0.453592, oz:0.0283495 };
+    function convertLen() {
+      const v = parseFloat(document.getElementById('lenVal').value) || 0;
+      const from = lenRates[document.getElementById('lenFrom').value];
+      const to = lenRates[document.getElementById('lenTo').value];
+      document.getElementById('lenOut').textContent = (v * from / to).toFixed(6);
+      logTool('unit', 'length');
+    }
+    function convertWeight() {
+      const v = parseFloat(document.getElementById('weightVal').value) || 0;
+      const from = weightRates[document.getElementById('weightFrom').value];
+      const to = weightRates[document.getElementById('weightTo').value];
+      document.getElementById('weightOut').textContent = (v * from / to).toFixed(6);
+      logTool('unit', 'weight');
+    }
+    function convertTemp() {
+      const v = parseFloat(document.getElementById('tempVal').value) || 0;
+      const from = document.getElementById('tempFrom').value;
+      const to = document.getElementById('tempTo').value;
+      let c;
+      if (from === 'c') c = v;
+      else if (from === 'f') c = (v - 32) * 5/9;
+      else c = v - 273.15;
+      let r;
+      if (to === 'c') r = c;
+      else if (to === 'f') r = c * 9/5 + 32;
+      else r = c + 273.15;
+      document.getElementById('tempOut').textContent = r.toFixed(2);
+      logTool('unit', 'temp');
+    }
+    convertLen(); convertWeight(); convertTemp();
+  </script>
+</body>
+</html>
